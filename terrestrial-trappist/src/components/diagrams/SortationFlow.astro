@@ -1,0 +1,87 @@
+---
+import DiagramFrame from './DiagramFrame.astro';
+---
+
+<DiagramFrame
+	label="BeeSort Sortation Flow"
+	viewBox="0 0 1360 540"
+	ariaLabel="How Core pushes route codes to the BeeSort sorter"
+	description="Two entry points feed Core: a real-time origin scan, and an ops-selected wave in Providence. Core resolves each package's route code and pushes tracking-number-to-route-code mappings to the BeeSort Cloud API, which syncs them to the device. The device then sorts each scanned package into its assigned chute."
+>
+	<!-- Two entry points on the left converge on Core, which pushes to BeeSort. -->
+	<g class="connectors">
+		<path d="M 260 105 H 350 Q 370 105 370 125 V 175 Q 370 195 390 195 H 400" />
+		<path d="M 260 335 H 350 Q 370 335 370 315 V 265 Q 370 245 390 245 H 400" />
+		<path d="M 640 220 H 760" />
+		<path d="M 980 220 H 1100" />
+		<path d="M 1210 285 V 380" />
+	</g>
+
+	<!-- Ordered steps, one badge per connector, matching the connectors group above. -->
+	<g class="step-badges">
+		<g transform="translate(370 150)">
+			<circle r="12" />
+			<text y="4">1</text>
+		</g>
+		<g transform="translate(370 290)">
+			<circle r="12" />
+			<text y="4">2</text>
+		</g>
+		<g transform="translate(700 220)">
+			<circle r="12" />
+			<text y="4">3</text>
+		</g>
+		<g transform="translate(1040 220)">
+			<circle r="12" />
+			<text y="4">4</text>
+		</g>
+		<g transform="translate(1210 332)">
+			<circle r="12" />
+			<text y="4">5</text>
+		</g>
+	</g>
+
+	<a href="/glossary/origin-scan/" class="node-link" aria-label="Origin scan — read the origin scan glossary entry">
+		<g class="node" transform="translate(40 60)">
+			<rect width="220" height="90" rx="14" />
+			<text x="110" y="45">Origin scan</text>
+			<text x="110" y="66" class="subtitle">(one package, live)</text>
+		</g>
+	</a>
+
+	<g class="node" transform="translate(40 290)">
+		<rect width="220" height="90" rx="14" />
+		<text x="110" y="45">Providence</text>
+		<text x="110" y="66" class="subtitle">(ops picks a wave)</text>
+	</g>
+
+	<a href="/backend-services/core/" class="node-link" aria-label="Core — read the Core service page">
+		<g class="node" transform="translate(400 155)">
+			<rect width="240" height="130" rx="14" />
+			<text x="120" y="60">Core</text>
+			<text x="120" y="82" class="subtitle">(resolves route codes)</text>
+		</g>
+	</a>
+
+	<g class="node" transform="translate(760 155)">
+		<rect width="220" height="130" rx="14" />
+		<text x="110" y="60">BeeSort Cloud</text>
+		<text x="110" y="82" class="subtitle">(mapping store)</text>
+	</g>
+
+	<a href="/glossary/beesorter/" class="node-link" aria-label="BeeSort device — read the BeeSort glossary entry">
+		<g class="node" transform="translate(1100 155)">
+			<rect width="220" height="130" rx="14" />
+			<text x="110" y="60">BeeSort device</text>
+			<text x="110" y="82" class="subtitle">(on the warehouse floor)</text>
+		</g>
+	</a>
+
+	<a href="/glossary/chute/" class="node-link" aria-label="Chutes — read the chute glossary entry">
+		<g class="node" transform="translate(1100 380)">
+			<rect width="220" height="90" rx="14" />
+			<text x="110" y="45">Chutes</text>
+			<text x="110" y="66" class="subtitle">(33 + 2 leftover)</text>
+		</g>
+	</a>
+</DiagramFrame>

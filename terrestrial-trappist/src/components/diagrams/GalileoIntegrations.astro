@@ -1,0 +1,50 @@
+---
+import DiagramFrame from './DiagramFrame.astro';
+---
+
+<DiagramFrame
+	label="Galileo Integrations"
+	viewBox="0 0 700 440"
+	ariaLabel="Galileo service dependencies"
+	description="Galileo, GoBolt's customer delivery tracking page, exchanges JWT auth and order data with Core. Pigeon supplies Galileo with real-time vehicle location, built from location updates that Maverick sends to Pigeon every five seconds."
+>
+	<!-- Chain: Maverick feeds Pigeon, Pigeon feeds Galileo, Galileo separately talks to Core. -->
+	<g class="connectors">
+		<path d="M 260 90 H 440" />
+		<path d="M 550 140 V 220 Q 550 240 530 240 H 170 Q 150 240 150 260 V 300" />
+		<path d="M 260 350 H 440" />
+	</g>
+
+	<g class="edge-labels">
+		<text x="350" y="80">Location update every 5s</text>
+		<text x="350" y="232">Real-time vehicle location</text>
+		<text x="350" y="340">JWT auth &amp; order status</text>
+	</g>
+
+	<a href="/frontend-services/maverick/" class="node-link" aria-label="Maverick — read the Maverick service page">
+		<g class="node" transform="translate(40 40)">
+			<rect width="220" height="100" rx="14" />
+			<text x="110" y="56">Maverick</text>
+		</g>
+	</a>
+
+	<a href="/backend-services/pigeon/" class="node-link" aria-label="Pigeon — read the Pigeon service page">
+		<g class="node" transform="translate(440 40)">
+			<rect width="220" height="100" rx="14" />
+			<text x="110" y="56">Pigeon</text>
+		</g>
+	</a>
+
+	<g class="node" transform="translate(40 300)">
+		<rect width="220" height="100" rx="14" />
+		<text x="110" y="56">Galileo</text>
+	</g>
+
+	<a href="/backend-services/core/" class="node-link" aria-label="Core — read the Core service page">
+		<g class="node" transform="translate(440 300)">
+			<rect width="220" height="100" rx="14" />
+			<text x="110" y="56">Core</text>
+		</g>
+	</a>
+</DiagramFrame>
+

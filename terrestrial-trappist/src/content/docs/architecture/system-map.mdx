@@ -1,0 +1,73 @@
+---
+title: System Map
+description: How Minipod's services and partner systems connect, and which paths bypass Core.
+---
+
+import SystemMap from '../../../components/diagrams/SystemMap.astro';
+import { Aside } from '@astrojs/starlight/components';
+
+Every service page in this handbook shows its own integrations. This page shows the whole picture at once: which systems exist, how they are layered, and — just as usefully — which connections are *not* there.
+
+<SystemMap />
+
+---
+
+### Core is the hub
+
+Core is the system of record for accounts, users and roles, fulfillment orders, warehouse operations, and logistics. Almost everything else reads from or writes to it, in a hub-and-spoke pattern rather than service-to-service.
+
+That shape is the single most useful thing to know about this system. When tracing a question, the answer is usually "it went through Core" — and the exceptions are worth memorizing because they are the ones that surprise people.
+
+| Layer | Systems | Relationship to Core |
+| --- | --- | --- |
+| **Interfaces** | BVR, Maverick, Galileo, Sierra | All four read and write Core directly |
+| **Platform services** | Silver, Optimate, Alpine, Blue | Alpine and Blue exchange data with Core; Silver writes routes into it |
+| **Partner systems** | Jarvis, Hubble, Shipium | Reach Core over events and APIs at the network edge |
+| **Tracking** | Pigeon | **None** — see below |
+
+---
+
+### What each system is for
+
+| System | Role |
+| --- | --- |
+| **[BVR](/frontend-services/bvr/)** | The TMS. Dispatchers plan routes, assign drivers, and monitor deliveries. |
+| **[Maverick](/frontend-services/maverick/)** | The driver app. Route execution, scanning, and proof of delivery. |
+| **[Galileo](/frontend-services/galileo/)** | The customer-facing tracking page. |
+| **[Sierra](/frontend-services/sierra/)** | The internal admin portal, used across ops, support, and warehouse staff. |
+| **[Silver](/backend-services/silver/)** | Routing orchestration — takes routing jobs and turns optimizer output into routes. |
+| **[Optimate](/backend-services/optimate/)** | The routing-math engine. Solves the vehicle-routing problem itself. |
+| **[Alpine](/backend-services/alpine/)** | Delivery service partners, drivers, users, invitations, and roles. |
+| **[Blue](/backend-services/blue/)** | Addresses, zone lookups, appointment completion data, and token validation. |
+| **[Pigeon](/backend-services/pigeon/)** | Live vehicle location. |
+| **[Jarvis](/jarvis/overview/)** | eCommerce and ERP integrations, and the shared event/webhook broker between Core and Hubble. |
+| **[Hubble](/hubble/overview/)** | The parcel platform (BoxKnight lineage) — merchants, orders, labels, rates, and users. |
+| **[Shipium](/shipium/overview/)** | A partner rate-shopping platform that treats GoBolt as one carrier among several. |
+
+---
+
+### The paths that bypass Core
+
+These are the exceptions to hub-and-spoke, and the reason a "Core knows everything" assumption eventually breaks.
+
+**Pigeon never touches Core at all.** Maverick pushes each driver's location to Pigeon every five seconds, and BVR and Galileo read the latest position back from Pigeon directly. Location data never lands in Core, so a question about where a van *was* cannot be answered from Core's data.
+
+**Silver talks to Optimate over Pub/Sub, not HTTP.** Routing jobs and optimizer output are messages, not request/response calls, so a failed optimization does not surface as a failed API call to BVR.
+
+**The frontends call platform services directly.** BVR is the clearest case: as well as Core, it calls Silver for routing and route analysis, Alpine for DSP and driver data, Blue for zones and completion details, and Pigeon for live positions. The map shows the Silver path; the others follow the same pattern.
+
+**Hubble reaches Core through Jarvis.** Hubble's Order Service does not call Core's endpoint directly — order-creation events are relayed through Jarvis as the shared broker. Maverick, separately, calls Hubble's Order Service directly to confirm carrier pickups.
+
+**Sierra has its own backends.** Alongside Core it talks to November for warehouse data, bfapi for feature and permission checks, and Pigeon purely for feature flags — not for vehicle tracking. Its Hubble relationship is indirect, through Core's accounts domain.
+
+<Aside type="note" title="Two systems, one name">
+"Hubble" and "BoxKnight" refer to the same platform. Core's client classes are still named `Boxknight::Client` and `Boxknight::AdminClient`, while the services and documentation say Hubble.
+</Aside>
+
+---
+
+### Where to go next
+
+- To follow an order end to end, read [Fulfilled by Bolt](/architecture/fulfilled-by-bolt/) or [Fulfilled by Merchant](/architecture/fulfilled-by-merchant/).
+- To see how packages are physically routed inside a warehouse, read [Sortation](/architecture/sortation/).
+- For any unfamiliar term, the [glossary](/glossary/air-skip/) holds the transportation vocabulary in one place.

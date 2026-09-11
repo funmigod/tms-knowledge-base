@@ -1,0 +1,69 @@
+---
+import DiagramFrame from './DiagramFrame.astro';
+---
+
+<DiagramFrame
+	label="Core Architecture Overview"
+	viewBox="0 0 900 880"
+	ariaLabel="Core service dependency graph"
+	description="Core is the hub-and-spoke system of record. BVR, Maverick, Alpine, and Blue sync data with Core in both directions, while Galileo and Silver send data to Core one-way."
+>
+	<!-- Fixed connector paths matching the reference layout. -->
+	<g class="connectors">
+		<path class="both" d="M 310 440 H 445 Q 465 440 465 420 V 110 Q 465 90 485 90 H 620" />
+		<path d="M 620 230 H 485 Q 465 230 465 250 V 420 Q 465 440 445 440 H 310" />
+		<path class="both" d="M 310 440 H 445 Q 465 440 465 420 V 390 Q 465 370 485 370 H 620" />
+		<path class="both" d="M 310 440 H 445 Q 465 440 465 460 V 490 Q 465 510 485 510 H 620" />
+		<path class="both" d="M 310 440 H 445 Q 465 440 465 460 V 630 Q 465 650 485 650 H 620" />
+		<path d="M 620 790 H 485 Q 465 790 465 770 V 460 Q 465 440 445 440 H 310" />
+	</g>
+
+	<g class="node" transform="translate(50 365)">
+		<rect width="260" height="150" rx="14" />
+		<text x="130" y="69">Core</text>
+		<text class="subtitle" x="130" y="91">(System of Record)</text>
+	</g>
+
+	<a href="/frontend-services/bvr/" class="node-link" aria-label="BVR — read the BVR service page">
+		<g class="node" transform="translate(620 40)">
+			<rect width="230" height="100" rx="14" />
+			<text x="115" y="56">BVR</text>
+		</g>
+	</a>
+
+	<a href="/frontend-services/galileo/" class="node-link" aria-label="Galileo — read the Galileo service page">
+		<g class="node" transform="translate(620 180)">
+			<rect width="230" height="100" rx="14" />
+			<text x="115" y="56">Galileo</text>
+		</g>
+	</a>
+
+	<a href="/frontend-services/maverick/" class="node-link" aria-label="Maverick — read the Maverick service page">
+		<g class="node" transform="translate(620 320)">
+			<rect width="230" height="100" rx="14" />
+			<text x="115" y="56">Maverick</text>
+		</g>
+	</a>
+
+	<a href="/backend-services/alpine/" class="node-link" aria-label="Alpine — read the Alpine service page">
+		<g class="node" transform="translate(620 460)">
+			<rect width="230" height="100" rx="14" />
+			<text x="115" y="56">Alpine</text>
+		</g>
+	</a>
+
+	<a href="/backend-services/blue/" class="node-link" aria-label="Blue — read the Blue service page">
+		<g class="node" transform="translate(620 600)">
+			<rect width="230" height="100" rx="14" />
+			<text x="115" y="56">Blue</text>
+		</g>
+	</a>
+
+	<a href="/backend-services/silver/" class="node-link" aria-label="Silver — read the Silver service page">
+		<g class="node" transform="translate(620 740)">
+			<rect width="230" height="100" rx="14" />
+			<text x="115" y="56">Silver</text>
+		</g>
+	</a>
+</DiagramFrame>
+

@@ -1,0 +1,166 @@
+---
+import DiagramFrame from './DiagramFrame.astro';
+---
+
+<DiagramFrame
+	label="Minipod System Map"
+	viewBox="0 0 1400 940"
+	ariaLabel="Map of Minipod's transportation services and how they connect"
+	description="Core sits at the centre as the system of record. Partner systems (Jarvis, Hubble, Shipium) connect above it, platform services (Silver, Optimate, Alpine, Blue) below it, and the four interfaces (BVR, Maverick, Galileo, Sierra) below those. Pigeon sits outside the hub entirely: Maverick pushes driver locations to it, and BVR and Galileo read them back."
+>
+	<!-- Bands run top to bottom: partner systems, Core, platform services, interfaces,
+	     then Pigeon on its own, because it is the one service that never touches Core. -->
+	<g class="connectors">
+		<!-- Partner systems into Core -->
+		<path class="both" d="M 400 120 V 230" />
+		<path d="M 600 80 H 500" />
+		<path d="M 1000 120 V 230" />
+
+		<!-- Core and the platform services -->
+		<path class="both" d="M 270 340 V 440" />
+		<path class="both" d="M 360 480 H 420" />
+		<path class="both" d="M 750 340 V 440" />
+		<path class="both" d="M 990 340 V 440" />
+
+		<!-- Interfaces into Core, threaded through the gaps between the service boxes -->
+		<path class="both" d="M 390 640 V 340" />
+		<path class="both" d="M 630 640 V 340" />
+		<path class="both" d="M 870 640 V 340" />
+		<path class="both" d="M 1110 640 V 340" />
+
+		<!-- Pigeon's location fan-out, which bypasses Core completely -->
+		<path d="M 630 720 V 820" />
+		<path d="M 540 860 H 360 Q 340 860 340 840 V 720" />
+		<path d="M 720 860 H 900 Q 920 860 920 840 V 720" />
+
+		<!-- BVR reaches Silver directly, not through Core -->
+		<path class="soft" d="M 300 680 H 260 Q 240 680 240 660 V 540 Q 240 520 260 520" />
+	</g>
+
+	<g class="band-labels">
+		<text x="40" y="85">PARTNERS</text>
+		<text x="40" y="490">SERVICES</text>
+		<text x="40" y="686">INTERFACES</text>
+		<text x="40" y="866">TRACKING</text>
+	</g>
+
+	<!-- Silver<->Optimate carries no label: the only clear space beside that connector is
+	     the same gap BVR's vertical threads through. The Pub/Sub detail is in the prose. -->
+	<g class="edge-labels">
+		<text x="630" y="790">Every 5s</text>
+	</g>
+
+	<a href="/jarvis/overview/" class="node-link" aria-label="Jarvis — read the Jarvis overview">
+		<g class="node" transform="translate(300 40)">
+			<rect width="200" height="80" rx="14" />
+			<text x="100" y="40">Jarvis</text>
+			<text x="100" y="60" class="subtitle">(event broker)</text>
+		</g>
+	</a>
+
+	<a href="/hubble/overview/" class="node-link" aria-label="Hubble — read the Hubble overview">
+		<g class="node" transform="translate(600 40)">
+			<rect width="200" height="80" rx="14" />
+			<text x="100" y="40">Hubble</text>
+			<text x="100" y="60" class="subtitle">(parcel platform)</text>
+		</g>
+	</a>
+
+	<a href="/shipium/overview/" class="node-link" aria-label="Shipium — read the Shipium overview">
+		<g class="node" transform="translate(900 40)">
+			<rect width="200" height="80" rx="14" />
+			<text x="100" y="40">Shipium</text>
+			<text x="100" y="60" class="subtitle">(rate shopping)</text>
+		</g>
+	</a>
+
+	<a href="/backend-services/core/" class="node-link" aria-label="Core — read the Core service page">
+		<g class="node is-hub" transform="translate(140 230)">
+			<rect width="1120" height="110" rx="14" />
+			<text x="560" y="58">Core</text>
+			<text x="560" y="80" class="subtitle">(system of record — accounts, orders, logistics, Transport::)</text>
+		</g>
+	</a>
+
+	<a href="/backend-services/silver/" class="node-link" aria-label="Silver — read the Silver service page">
+		<g class="node" transform="translate(180 440)">
+			<rect width="180" height="80" rx="14" />
+			<text x="90" y="40">Silver</text>
+			<text x="90" y="60" class="subtitle">(routing)</text>
+		</g>
+	</a>
+
+	<a href="/backend-services/optimate/" class="node-link" aria-label="Optimate — read the Optimate service page">
+		<g class="node" transform="translate(420 440)">
+			<rect width="180" height="80" rx="14" />
+			<text x="90" y="40">Optimate</text>
+			<text x="90" y="60" class="subtitle">(optimizer)</text>
+		</g>
+	</a>
+
+	<a href="/backend-services/alpine/" class="node-link" aria-label="Alpine — read the Alpine service page">
+		<g class="node" transform="translate(660 440)">
+			<rect width="180" height="80" rx="14" />
+			<text x="90" y="40">Alpine</text>
+			<text x="90" y="60" class="subtitle">(partners, users)</text>
+		</g>
+	</a>
+
+	<a href="/backend-services/blue/" class="node-link" aria-label="Blue — read the Blue service page">
+		<g class="node" transform="translate(900 440)">
+			<rect width="180" height="80" rx="14" />
+			<text x="90" y="40">Blue</text>
+			<text x="90" y="60" class="subtitle">(addresses, zones)</text>
+		</g>
+	</a>
+
+	<a href="/frontend-services/bvr/" class="node-link" aria-label="BVR — read the BVR service page">
+		<g class="node" transform="translate(300 640)">
+			<rect width="180" height="80" rx="14" />
+			<text x="90" y="40">BVR</text>
+			<text x="90" y="60" class="subtitle">(TMS, ops)</text>
+		</g>
+	</a>
+
+	<a href="/frontend-services/maverick/" class="node-link" aria-label="Maverick — read the Maverick service page">
+		<g class="node" transform="translate(540 640)">
+			<rect width="180" height="80" rx="14" />
+			<text x="90" y="40">Maverick</text>
+			<text x="90" y="60" class="subtitle">(drivers)</text>
+		</g>
+	</a>
+
+	<a href="/frontend-services/galileo/" class="node-link" aria-label="Galileo — read the Galileo service page">
+		<g class="node" transform="translate(780 640)">
+			<rect width="180" height="80" rx="14" />
+			<text x="90" y="40">Galileo</text>
+			<text x="90" y="60" class="subtitle">(customers)</text>
+		</g>
+	</a>
+
+	<a href="/frontend-services/sierra/" class="node-link" aria-label="Sierra — read the Sierra service page">
+		<g class="node" transform="translate(1020 640)">
+			<rect width="180" height="80" rx="14" />
+			<text x="90" y="40">Sierra</text>
+			<text x="90" y="60" class="subtitle">(internal admin)</text>
+		</g>
+	</a>
+
+	<a href="/backend-services/pigeon/" class="node-link" aria-label="Pigeon — read the Pigeon service page">
+		<g class="node" transform="translate(540 820)">
+			<rect width="180" height="80" rx="14" />
+			<text x="90" y="40">Pigeon</text>
+			<text x="90" y="60" class="subtitle">(live location)</text>
+		</g>
+	</a>
+</DiagramFrame>
+
+<style>
+	/* Band captions down the left margin, naming each horizontal layer of the map. */
+	.band-labels text {
+		fill: var(--sl-color-gray-3);
+		font-size: 11px;
+		font-weight: 750;
+		letter-spacing: 0.12em;
+	}
+</style>

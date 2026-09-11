@@ -1,0 +1,42 @@
+---
+import DiagramFrame from './DiagramFrame.astro';
+---
+
+<DiagramFrame
+	label="Alpine Integrations"
+	viewBox="0 0 800 370"
+	ariaLabel="Alpine service dependency graph"
+	description="Core exchanges partner, signup, user, and role data with Alpine in both directions. BVR calls Alpine one-way for DSP management data."
+>
+	<!-- Fixed connector paths matching the reference layout. -->
+	<g class="connectors">
+		<path class="both" d="M 270 90 H 365 Q 385 90 385 110 V 150 Q 385 170 405 170 H 500" />
+		<path d="M 270 280 H 365 Q 385 280 385 260 V 240 Q 385 220 405 220 H 500" />
+	</g>
+
+	<g class="edge-labels">
+		<text x="385" y="130">Partner, user &amp; role data</text>
+		<text x="385" y="245">DSP management</text>
+	</g>
+
+	<a href="/backend-services/core/" class="node-link" aria-label="Core — read the Core service page">
+		<g class="node" transform="translate(40 40)">
+			<rect width="230" height="100" rx="14" />
+			<text x="115" y="56">Core</text>
+		</g>
+	</a>
+
+	<a href="/frontend-services/bvr/" class="node-link" aria-label="BVR — read the BVR service page">
+		<g class="node" transform="translate(40 230)">
+			<rect width="230" height="100" rx="14" />
+			<text x="115" y="56">BVR</text>
+		</g>
+	</a>
+
+	<g class="node" transform="translate(500 140)">
+		<rect width="250" height="110" rx="14" />
+		<text x="125" y="49">Alpine</text>
+		<text class="subtitle" x="125" y="71">(Delivery Partner Service)</text>
+	</g>
+</DiagramFrame>
+

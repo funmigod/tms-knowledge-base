@@ -1,0 +1,93 @@
+---
+import DiagramFrame from './DiagramFrame.astro';
+---
+
+<DiagramFrame
+	label="BVR Architecture Overview"
+	viewBox="0 0 1420 950"
+	ariaLabel="BVR service dependency graph"
+	description="BVR is the operations hub, exchanging routes and appointments with Core directly and requesting routing from Silver. Silver orchestrates routing with Optimate over Google Pub/Sub and then creates routes in Core. BVR also calls Alpine, Blue, and Pigeon one-way, and deep-links to the sibling app Sierra without an API dependency."
+>
+	<!-- Fixed connector paths matching the reference layout. -->
+	<g class="connectors">
+		<path d="M 290 410 H 300 Q 320 410 320 390 V 100 Q 320 80 340 80 H 580" />
+		<path d="M 290 430 H 360 Q 380 430 380 410 V 240 Q 380 220 400 220 H 580" />
+		<path class="both" d="M 290 450 H 420 Q 440 450 440 430 V 385 Q 440 365 460 365 H 580" />
+		<path d="M 290 470 H 450 Q 470 470 470 490 V 495 Q 470 515 490 515 H 580" />
+		<path d="M 290 490 H 390 Q 410 490 410 510 V 640 Q 410 660 430 660 H 580" />
+		<path class="soft both" d="M 290 504 H 330 Q 350 504 350 524 V 780 Q 350 800 370 800 H 580" />
+		<path d="M 810 495 H 1060" />
+		<path d="M 1060 535 H 810" />
+		<path d="M 750 460 V 420" />
+	</g>
+
+	<g class="edge-labels">
+		<text x="320" y="250">DSP data</text>
+		<text x="380" y="330">Zones &amp; completion data</text>
+		<text x="440" y="412">Routes &amp; appointments</text>
+		<text x="430" y="464">Routing request &amp; metrics</text>
+		<text x="410" y="580">Live GPS locations</text>
+		<text x="400" y="657">Deep links (not API)</text>
+		<text x="935" y="485">Routing job (Pub/Sub)</text>
+		<text x="935" y="555">Optimized routes (Pub/Sub)</text>
+		<text x="750" y="443">Routes w/ vehicle kind</text>
+	</g>
+
+	<g class="node" transform="translate(40 400)">
+		<rect width="250" height="110" rx="14" />
+		<text x="125" y="48">BVR</text>
+		<text class="subtitle" x="125" y="70">(Transportation Management System)</text>
+	</g>
+
+	<a href="/backend-services/alpine/" class="node-link" aria-label="Alpine — read the Alpine service page">
+		<g class="node" transform="translate(580 30)">
+			<rect width="220" height="100" rx="14" />
+			<text x="110" y="56">Alpine</text>
+		</g>
+	</a>
+
+	<a href="/backend-services/blue/" class="node-link" aria-label="Blue — read the Blue service page">
+		<g class="node" transform="translate(580 170)">
+			<rect width="230" height="100" rx="14" />
+			<text x="115" y="56">Blue</text>
+		</g>
+	</a>
+
+	<a href="/backend-services/core/" class="node-link" aria-label="Core — read the Core service page">
+		<g class="node" transform="translate(580 310)">
+			<rect width="220" height="110" rx="14" />
+			<text x="110" y="61">Core</text>
+		</g>
+	</a>
+
+	<a href="/backend-services/silver/" class="node-link" aria-label="Silver — read the Silver service page">
+		<g class="node" transform="translate(580 460)">
+			<rect width="230" height="110" rx="14" />
+			<text x="115" y="48">Silver</text>
+			<text class="subtitle" x="115" y="70">(routing orchestration)</text>
+		</g>
+	</a>
+
+	<a href="/backend-services/pigeon/" class="node-link" aria-label="Pigeon — read the Pigeon service page">
+		<g class="node" transform="translate(580 610)">
+			<rect width="220" height="100" rx="14" />
+			<text x="110" y="56">Pigeon</text>
+		</g>
+	</a>
+
+	<a href="/frontend-services/sierra/" class="node-link" aria-label="Sierra — read the Sierra service page">
+		<g class="node" transform="translate(580 750)">
+			<rect width="220" height="100" rx="14" />
+			<text x="110" y="56">Sierra</text>
+		</g>
+	</a>
+
+	<a href="/backend-services/optimate/" class="node-link" aria-label="Optimate — read the Optimate service page">
+		<g class="node" transform="translate(1060 460)">
+			<rect width="250" height="110" rx="14" />
+			<text x="125" y="48">Optimate</text>
+			<text class="subtitle" x="125" y="70">(ALNS optimizer)</text>
+		</g>
+	</a>
+</DiagramFrame>
+

@@ -1,0 +1,93 @@
+---
+import DiagramFrame from './DiagramFrame.astro';
+---
+
+<DiagramFrame
+	label="Silver Routing Flow"
+	viewBox="0 0 1180 720"
+	ariaLabel="Silver routing and integration flow"
+	description="Silver sits at the center of the routing flow, receiving jobs from BVR and returning vehicle, ETA, and metrics data back to it. Silver also persists jobs to its database, exchanges formatted jobs and optimization output with Optimate over Pub/Sub, and creates routes in Core using vehicle kind."
+>
+	<!-- Two one-directional edges per pair (BVR<->Silver, Silver<->Optimate), routed as -->
+	<!-- distinct parallel/nested paths so the loop reads clearly without crossings. -->
+	<g class="connectors">
+		<path d="M 300 120 H 500 Q 520 120 520 140 V 320" />
+		<path d="M 450 370 H 220 Q 200 370 200 350 V 170" />
+		<path d="M 710 350 H 870" />
+		<path d="M 870 390 H 710" />
+		<path d="M 580 420 V 560" />
+		<path d="M 660 420 V 500 Q 660 520 680 520 H 850 Q 870 520 870 540 V 600" />
+	</g>
+
+	<!-- Ordered steps. The badge order follows the routing sequence, not the order the paths are drawn above. -->
+	<g class="step-badges">
+		<g transform="translate(520 230)">
+			<circle r="12" />
+			<text y="4">1</text>
+		</g>
+		<g transform="translate(580 455)">
+			<circle r="12" />
+			<text y="4">2</text>
+		</g>
+		<g transform="translate(790 350)">
+			<circle r="12" />
+			<text y="4">3</text>
+		</g>
+		<g transform="translate(790 390)">
+			<circle r="12" />
+			<text y="4">4</text>
+		</g>
+		<g transform="translate(765 520)">
+			<circle r="12" />
+			<text y="4">5</text>
+		</g>
+		<g transform="translate(200 260)">
+			<circle r="12" />
+			<text y="4">6</text>
+		</g>
+	</g>
+
+	<g class="edge-labels">
+		<text x="400" y="108">Create routing job</text>
+		<text x="335" y="392">Vehicle data, ETAs &amp; metrics</text>
+		<text x="790" y="332">Formatted job (Pub/Sub)</text>
+		<text x="790" y="416">Route output (Pub/Sub)</text>
+		<text x="580" y="505">Persist job</text>
+		<text x="765" y="500">Create routes w/ vehicle kind</text>
+	</g>
+
+	<a href="/frontend-services/bvr/" class="node-link" aria-label="BVR — read the BVR service page">
+		<g class="node" transform="translate(60 70)">
+			<rect width="240" height="100" rx="14" />
+			<text x="120" y="45">BVR</text>
+			<text x="120" y="66" class="subtitle">(Frontend)</text>
+		</g>
+	</a>
+
+	<g class="node" transform="translate(450 320)">
+		<rect width="260" height="100" rx="14" />
+		<text x="130" y="45">Silver</text>
+		<text x="130" y="66" class="subtitle">(Integration &amp; Metrics Engine)</text>
+	</g>
+
+	<g class="node" transform="translate(450 560)">
+		<rect width="260" height="100" rx="14" />
+		<text x="130" y="56">Silver SQL Database</text>
+	</g>
+
+	<a href="/backend-services/optimate/" class="node-link" aria-label="Optimate — read the Optimate service page">
+		<g class="node" transform="translate(870 320)">
+			<rect width="240" height="100" rx="14" />
+			<text x="120" y="45">Optimate</text>
+			<text x="120" y="66" class="subtitle">(Route Optimization)</text>
+		</g>
+	</a>
+
+	<a href="/backend-services/core/" class="node-link" aria-label="Core — read the Core service page">
+		<g class="node" transform="translate(870 560)">
+			<rect width="220" height="90" rx="14" />
+			<text x="110" y="51">Core</text>
+		</g>
+	</a>
+</DiagramFrame>
+

@@ -1,0 +1,49 @@
+---
+title: Blue
+description: An overview of GoBolt's Appointments Service.
+---
+
+import BlueIntegrations from '../../../components/diagrams/BlueIntegrations.astro';
+import { Badge } from '@astrojs/starlight/components';
+
+- **Repository:** <a href="https://github.com/SecondCloset/blue" target="_blank" rel="noopener noreferrer">SecondCloset/blue</a>
+- **Type of application:** <Badge text="Backend service" variant="note" />
+- **Written in:** <Badge text="NestJS" variant="note" /> + <Badge text="Node.js" variant="note" /> + <Badge text="TypeScript" variant="note" />
+- **Build/release tooling:** <Badge text="GitHub Actions" variant="note" /> + <Badge text="Docker" variant="note" />
+- **Deployed on:** <Badge text="Kubernetes" variant="note" /> + <Badge text="ArgoCD" variant="note" />
+
+---
+
+### What is Blue?
+
+Blue is GoBolt's Appointments Service. Despite the name, it isn't customer appointment booking — it owns addresses, delivery zones (geohash-based), and appointment completion data.
+
+---
+
+### Who uses Blue?
+
+Core pushes addresses and completion data into Blue and asks it for zone lookups by postal code; Blue's only call back to Core is validating a user's bearer token. BVR also calls Blue directly for its own appointment and zone-management screens.
+
+---
+
+### What does Blue do?
+
+| Area | What Blue supports |
+| --- | --- |
+| **Addresses** | Owns address records used by transportation operations. |
+| **Delivery zones** | Provides geohash-based delivery-zone lookups by postal code. |
+| **Appointment completion data** | Stores appointment completion data rather than customer appointment bookings. |
+| **Core synchronization** | Receives address and completion data from Core and serves zone lookups. |
+
+
+### The Services Connected to Blue
+
+| Service | How it connects to Blue |
+| --- | --- |
+| **Core** | Sends addresses and completion data, requests zone lookups, and validates bearer tokens used by Blue. |
+| **BVR** | Uses Blue for appointment-completion and zone-management experiences. |
+
+
+### Architecture Overview
+
+<BlueIntegrations />

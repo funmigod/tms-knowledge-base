@@ -1,0 +1,93 @@
+---
+title: Pigeon
+description: An overview of GoBolt's live vehicle-location service.
+---
+
+import { Badge } from '@astrojs/starlight/components';
+import PigeonLocationFlow from '../../../components/diagrams/PigeonLocationFlow.astro';
+
+- **Repository:** <a href="https://github.com/SecondCloset/pigeon" target="_blank" rel="noopener noreferrer">SecondCloset/pigeon</a>
+- **Type of application:** <Badge text="Backend service" variant="note" />
+- **Written in:** <Badge text="TypeScript" variant="note" /> + <Badge text="NestJS" variant="note" />
+- **Database tooling:** <Badge text="PostgreSQL" variant="note" /> + <Badge text="TypeORM" variant="note" />
+- **Build/release tooling:** <Badge text="GitHub Actions" variant="note" /> + <Badge text="Docker" variant="note" />
+- **Deployed on:** <Badge text="Kubernetes" variant="note" /> (GKE) + <Badge text="ArgoCD" variant="note" />
+
+---
+
+### What is Pigeon?
+
+Pigeon is the backend service that receives and serves live vehicle-location data. Maverick sends a driver's current location to Pigeon every five seconds.
+
+---
+
+### Who uses Pigeon?
+
+Maverick supplies the location updates. BVR and Galileo request the latest location data from Pigeon to display live vehicle positions on their maps.
+
+---
+
+### What does Pigeon do?
+
+| Area | What Pigeon supports |
+| --- | --- |
+| **Location ingestion** | Receives the current location from active Maverick phones every five seconds. |
+| **Live tracking** | Provides the latest vehicle-location data for live map experiences. |
+| **Location logs** | Stores location history in its PostgreSQL database. |
+
+---
+
+### The Services Connected to Pigeon
+
+| Service | How it connects to Pigeon |
+| --- | --- |
+| **Maverick** | Sends the driver's current location every five seconds. |
+| **BVR** | Requests current vehicle locations for its internal tracking map. |
+| **Galileo** | Requests current vehicle locations for customer-facing delivery tracking. |
+
+### Development and Testing
+
+Run Pigeon locally with Docker Compose:
+
+```bash
+docker-compose up --build
+```
+
+The `--build` flag is only necessary when the container image needs to be rebuilt. When the development container starts, `npm run start:dev` runs pending migrations before starting NestJS in watch mode.
+
+The repository provides commands for unit tests, end-to-end tests, and coverage:
+
+```bash
+npm run test
+npm run test:e2e
+npm run test:cov
+```
+
+When the development server is running, generated API documentation is available at `${baseURL}:3001/api`.
+
+### Deployment and Database Migrations
+
+Pigeon deploys to Kubernetes through GitHub Actions. A push to a staging branch builds and pushes the image, then restarts the pods in the corresponding namespace (`kubectl rollout restart deploy/pigeon -n minipod`).
+
+The repository README also describes an older automated AWS pipeline using CodePipeline, CodeBuild, and Elastic Beanstalk. That path is no longer used — `buildspec.yml` has not been modified since the repository's initial commit in 2021, while the Kubernetes workflow is actively maintained.
+
+Pigeon uses TypeORM migrations. Development startup runs migrations automatically, and the Kubernetes deployment configuration runs them through a `postStart` lifecycle hook. They can also be managed manually:
+
+```bash
+npm run migrate:run
+npm run migrate:revert
+npm run migrate:create [Name]
+npm run migrate:generate [Name]
+```
+
+When running migration commands outside Docker, a local `.env.local` can set `DB_HOST=localhost`; this file is excluded from the Docker image.
+
+### Architecture Overview
+
+These steps match the numbered badges in the diagram below.
+
+1. **Maverick reports the driver's location.** The app sends the driver's current position to Pigeon every five seconds.
+2. **Pigeon serves the location to BVR.** Dispatchers see live vehicle positions on the TMS map.
+3. **Pigeon serves the location to Galileo.** Customers see the same live position on their tracking page.
+
+<PigeonLocationFlow />

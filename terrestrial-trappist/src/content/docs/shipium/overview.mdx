@@ -1,0 +1,36 @@
+---
+title: Shipium
+description: How Shipium selects GoBolt as a carrier and returns labels to warehouse teams.
+---
+
+import ShipiumRateSelectionFlow from '../../../components/diagrams/ShipiumRateSelectionFlow.astro';
+
+### Overview
+
+Shipium is a shipping platform integrated into the warehouse packing workflow. When a warehouse associate packs a parcel, Shipium selects a carrier and provides the shipping label that the associate uses to dispatch it.
+
+GoBolt is one of the carriers Shipium can consider, alongside carriers such as Canada Post and FedEx.
+
+### What changes for warehouse teams
+
+Previously, a packer could be shown multiple eligible carrier options based on the destination and parcel dimensions. Shipium now returns a single selected option based on the merchant or sender’s configuration, so the packer does not need to choose a carrier manually.
+
+### How GoBolt participates
+
+For each shipment, Shipium asks GoBolt’s Transport API for rate quotes using the shipment details, including its destination address and dimensions. Shipium compares GoBolt’s quote with the other eligible carriers and applies its carrier-selection rules.
+
+If Shipium selects GoBolt, it creates the shipment order with GoBolt and receives the corresponding shipping label. That label is then presented to the warehouse packer.
+
+<ShipiumRateSelectionFlow />
+
+### Responsibilities
+
+| System | Responsibility |
+| --- | --- |
+| **Shipium** | Collects the shipment details, obtains carrier quotes, selects a carrier, creates the selected carrier’s order, and presents the label. |
+| **GoBolt Transport API** | Provides GoBolt rate quotes, creates the GoBolt order when selected, and returns the shipping label. |
+| **Warehouse packer** | Packs the parcel and uses the label selected by Shipium. |
+
+### To confirm
+
+*Shipium’s exact carrier-selection criteria are not yet confirmed. The current understanding is that selection uses merchant or sender configuration and price; it should not be described as AI-based until that is verified.*

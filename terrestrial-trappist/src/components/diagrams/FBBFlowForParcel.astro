@@ -1,0 +1,105 @@
+---
+import DiagramFrame from './DiagramFrame.astro';
+---
+
+<DiagramFrame
+	label="FBB Flow for Parcel"
+	viewBox="0 0 1400 860"
+	ariaLabel="Duplicate organization parcel flow"
+	description="FBB creates a shipment in the Fulfillment organization. Fulfillment calls Hubble for rates, Hubble creates an order in the GBP organization, and BVR sees that order."
+>
+	<!-- Fixed connector paths matching the reference layout. -->
+	<g class="connectors">
+		<path d="M 475 105 H 168 Q 145 105 145 128 V 202" />
+		<path d="M 145 318 V 500 Q 145 520 165 520 H 440 Q 465 520 465 545 V 700" />
+		<path d="M 590 765 H 760 Q 785 765 785 740 V 318" />
+		<path d="M 910 247 H 950 Q 975 247 975 272 V 455 Q 975 480 1000 480 H 1030" />
+	</g>
+
+	<!-- Ordered steps, one badge per connector, matching the connectors group above. -->
+	<g class="step-badges">
+		<g transform="translate(321 105)">
+			<circle r="12" />
+			<text y="4">1</text>
+		</g>
+		<g transform="translate(302 520)">
+			<circle r="12" />
+			<text y="4">2</text>
+		</g>
+		<g transform="translate(675 765)">
+			<circle r="12" />
+			<text y="4">3</text>
+		</g>
+		<g transform="translate(975 363)">
+			<circle r="12" />
+			<text y="4">4</text>
+		</g>
+	</g>
+
+	<!-- Fulfillment ORG and GBP ORG are a linked pair (a "twin org"): Hubble's order lands in a -->
+	<!-- transport org that Org Config ties back to the originating Fulfillment org. -->
+	<g class="twin-link">
+		<path d="M 270 260 H 665" />
+		<text x="467.5" y="253">twin org · linked via org config</text>
+	</g>
+
+	<a href="/glossary/fbb/" class="node-link" aria-label="FBB flow — read the FBB glossary entry">
+		<g class="node compact" transform="translate(475 60)">
+			<rect width="140" height="90" rx="14" />
+			<text x="70" y="53">FBB flow</text>
+		</g>
+	</a>
+
+	<a href="/glossary/org-config/" class="node-link" aria-label="Fulfillment ORG — read the Org Config glossary entry">
+		<g class="node is-org" transform="translate(25 202)">
+			<rect width="245" height="116" rx="14" />
+			<rect class="eyebrow-tag" x="16" y="16" width="42" height="20" rx="10" />
+			<text class="eyebrow" x="37" y="30">ORG</text>
+			<text x="122.5" y="74">Fulfillment ORG</text>
+		</g>
+	</a>
+
+	<a href="/glossary/gbp/" class="node-link" aria-label="GBP ORG — read the GBP glossary entry">
+		<g class="node is-org" transform="translate(665 202)">
+			<rect width="245" height="116" rx="14" />
+			<rect class="eyebrow-tag" x="16" y="16" width="42" height="20" rx="10" />
+			<text class="eyebrow" x="37" y="30">ORG</text>
+			<text x="122.5" y="74">GBP ORG</text>
+		</g>
+	</a>
+
+	<a href="/frontend-services/bvr/" class="node-link" aria-label="BVR — read the BVR service page">
+		<g class="node" transform="translate(1030 422)">
+			<rect width="245" height="116" rx="14" />
+			<text x="122.5" y="66">BVR</text>
+		</g>
+	</a>
+
+	<a href="/hubble/overview/" class="node-link" aria-label="Hubble — read the Hubble overview">
+		<g class="node" transform="translate(340 700)">
+			<rect width="250" height="130" rx="14" />
+			<text x="125" y="70">Hubble</text>
+		</g>
+	</a>
+</DiagramFrame>
+
+<style>
+	.twin-link path {
+		fill: none;
+		stroke: var(--sl-color-accent);
+		stroke-width: 2;
+		stroke-dasharray: 5 5;
+		opacity: 0.75;
+	}
+
+	.twin-link text {
+		fill: var(--sl-color-accent-high);
+		font-size: 12.5px;
+		font-weight: 650;
+		text-anchor: middle;
+		paint-order: stroke;
+		stroke: var(--sl-color-gray-6);
+		stroke-width: 9px;
+		stroke-linejoin: round;
+	}
+</style>

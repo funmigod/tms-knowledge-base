@@ -1,0 +1,74 @@
+---
+title: Maverick
+description: An overview of GoBolt's driver mobile application.
+---
+
+import { Badge } from '@astrojs/starlight/components';
+import MaverickIntegrations from '../../../components/diagrams/MaverickIntegrations.astro';
+
+- **Repository:** <a href="https://github.com/SecondCloset/maverick" target="_blank" rel="noopener noreferrer">SecondCloset/maverick</a>
+- **Available on:** <Badge text="iOS App Store" variant="note" /> + <Badge text="Google Play Store" variant="note" />
+- **Type of application:** <Badge text="Mobile application" variant="note" />
+- **Written in:** <Badge text="React Native" variant="note" /> + <Badge text="TypeScript" variant="note" />
+- **Build/release tooling:** <Badge text="Yarn" variant="note" /> + <Badge text="Jest" variant="note" /> + <Badge text="Fastlane" variant="note" /> + <Badge text="CocoaPods" variant="note" /> + <Badge text="GitHub Actions" variant="note" />
+- **Internal testing builds:** <Badge text="Firebase App Distribution" variant="note" /> (iOS and Android), via <Badge text="Fastlane" variant="note" />
+- **Production releases:** <Badge text="App Store Connect" variant="note" /> (iOS) + <Badge text="Google Play Console" variant="note" /> (Android) — both manual
+
+---
+
+### What is Maverick?
+
+Maverick is GoBolt's driver mobile application. It is used by delivery drivers to manage their daily routes, complete deliveries, capture proof of delivery, and communicate delivery status back to GoBolt's platform.
+
+The application serves as the primary interface for drivers throughout the delivery lifecycle. It enables route execution, package scanning, navigation, delivery verification, and real-time operational updates between drivers and GoBolt's transportation systems.
+
+---
+
+### Who uses Maverick?
+
+Maverick is used exclusively by GoBolt delivery drivers out in the field — not dispatchers, not customers, not merchants. It's the app that actually executes what BVR plans and Galileo reports on downstream.
+
+---
+
+### What does Maverick do?
+
+| Area | What Maverick supports |
+| --- | --- |
+| **Route execution** | Lets drivers follow and complete their assigned delivery routes. |
+| **Package scanning** | Uses barcode and camera scanning for pickups and deliveries. |
+| **Proof of delivery** | Captures signatures and uses Captur AI photo and scan checks for verification. |
+| **Real-time updates** | Sends delivery status and location updates back to GoBolt’s platform. |
+
+
+### Driver Execution Flow
+
+1. **Retrieve routes and appointments.** When a driver logs in, Maverick requests the driver’s assigned routes and appointments directly from Core.
+2. **Confirm loading.** After the route is retrieved, Maverick sends loading signals to Core as packages and appointments are successfully loaded into the delivery vehicle at the warehouse.
+3. **Update appointment status.** During route execution, Maverick sends appointment-status changes to Core, such as **on the way**, **arrived**, and **completed**.
+4. **Send live location.** Every phone running Maverick sends its current location to Pigeon every five seconds. 
+5. **Display live vehicle positions.** Galileo and BVR request the latest location data from Pigeon to display vehicles on their maps.
+
+---
+
+### The Backend Services Connected to Maverick
+
+| Service | What Maverick uses it for |
+| --- | --- |
+| **Core** | Login and authentication; assigned routes and appointments; package loading signals; appointment-status updates; shipments, packages, feature flags, and organization configuration. |
+| **Silver** | Integrates with Maverick as part of route execution; the exact data exchanged is not specified in the available architecture diagram. |
+| **Pigeon** | Receives the current location from every active Maverick phone every five seconds. Galileo and BVR request the latest location data from Pigeon for live vehicle tracking. |
+
+
+### Deployment
+
+Maverick has no automated deployment pipeline. The GitHub Actions workflow runs Jest tests, `tsc`, and linting on pull requests only — it does not build or ship the app. Every release is performed manually from a developer machine.
+
+**Internal testing.** Both platforms distribute through Firebase App Distribution, automated with Fastlane. `ios/fastlane/Fastfile` and `android/fastlane/Fastfile` each build the app and upload it via the `firebase_app_distribution` action. Testers are managed in the Firebase console under the Maverick project.
+
+**Production.** iOS builds are archived in Xcode and submitted through App Store Connect. Android builds produce a signed `.aab` at `android/app/build/outputs/bundle/release/app-release.aab`, which is uploaded to the Play Console's internal testing track and promoted to the Play Store after review.
+
+---
+
+### Architecture Overview
+
+<MaverickIntegrations />

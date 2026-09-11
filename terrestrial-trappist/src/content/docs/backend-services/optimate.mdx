@@ -1,0 +1,68 @@
+---
+title: Optimate
+description: An overview of GoBolt's Optimate Router routing-math engine.
+---
+
+import { Badge, Aside } from '@astrojs/starlight/components';
+import OptimateRoutingFlow from '../../../components/diagrams/OptimateRoutingFlow.astro';
+
+- **Type of application:** <Badge text="Backend service" variant="note" />
+- **Written in:** <Badge text="Python" variant="note" /> + <Badge text="FastAPI" variant="note" />
+- **Build/release tooling:** <Badge text="GitHub Actions" variant="note" /> + <Badge text="Docker" variant="note" />
+- **Deployed on:** <Badge text="GCP Cloud Run" variant="note" /> (Docker/Uvicorn, port 8086)
+
+---
+
+### What is Optimate Router?
+
+Optimate Router is a standalone routing-math engine. It solves vehicle routing problems (VRP) and traveling-salesman problems (TSP) using adaptive large neighborhood search (ALNS) algorithms, to actually generate optimized delivery routes and sequences.
+
+---
+
+### Who uses Optimate Router?
+
+Optimate Router is called by Silver, not by Core or any frontend directly — Silver dispatches routing jobs to it and processes the results coming back.
+
+---
+
+### What does Optimate Router do?
+
+| Area | What Optimate Router supports |
+| --- | --- |
+| **Vehicle routing** | Solves vehicle routing problems (VRP) to generate optimized delivery routes. |
+| **Stop sequencing** | Solves traveling-salesman problems (TSP) to generate optimized stop sequences. |
+| **Optimization** | Uses adaptive large neighborhood search (ALNS) algorithms. |
+| **Routing results** | Returns one or more optimized routes, or stops that could not be routed, to Silver. |
+
+
+### The Services Connected to Optimate Router
+
+| Service | How it connects to Optimate Router |
+| --- | --- |
+| **Silver** | Sends routing jobs through Google Pub/Sub and processes the optimization results returned by Optimate. |
+
+### Deployment
+
+Optimate Router runs on GCP Cloud Run, as a Docker image serving FastAPI through Uvicorn on port 8086.
+
+The GitHub Actions workflow only builds and publishes the image. A push to `staging/mini` or an `rc-**` branch downloads the map data from GCS, builds the Docker image, and pushes it to Google Artifact Registry tagged `staging` or `rc`.
+
+<Aside type="caution" title="Cloud Run is promoted manually">
+The build workflow does **not** update Cloud Run. Deploying a new version is a manual step in the GCP console:
+
+1. Open the staging or production GCP project and go to **Cloud Run**.
+2. Select `optimate-router`.
+3. Click **Edit & Deploy new revision**.
+4. Paste the image path from the build workflow summary — either the `:staging`/`:rc` tag or the SHA tag works.
+</Aside>
+
+---
+
+### Architecture Overview
+
+These steps match the numbered badges in the diagram below.
+
+1. **Silver dispatches a routing job.** The formatted job is published to Optimate over Google Pub/Sub.
+2. **Optimate returns the solution.** Optimate solves the routing problem and publishes the optimized routes, or any unplanned stops, back to Silver over Pub/Sub.
+
+<OptimateRoutingFlow />

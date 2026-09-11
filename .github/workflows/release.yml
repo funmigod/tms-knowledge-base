@@ -1,0 +1,150 @@
+name: Release
+
+# Tags a dated release whenever something lands on main, but only after the site
+# actually builds. A failed build means no tag, so every tag is a known-good site.
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      # The workflow writes this file itself. Pushes from GITHUB_TOKEN do not
+      # re-trigger workflows, so this is belt-and-braces rather than the only guard.
+      - 'RELEASE_NOTES.md'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+# Two releases racing would compute the same tag number and one would fail to push.
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    if: ${{ !contains(github.event.head_commit.message, '[skip release]') }}
+
+    steps:
+      - name: Check out full history
+        uses: actions/checkout@v4
+        with:
+          # Needed to read existing tags and to diff commits for the changelog.
+          fetch-depth: 0
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.12'
+          cache: npm
+          cache-dependency-path: terrestrial-trappist/package-lock.json
+
+      - name: Install dependencies
+        working-directory: terrestrial-trappist
+        run: npm ci
+
+      - name: Build site
+        working-directory: terrestrial-trappist
+        run: npm run build
+
+      - name: Work out the version and what changed
+        id: version
+        run: |
+          set -euo pipefail
+
+          # Most recent release tag reachable from HEAD. Deliberately not
+          # `git tag --sort=creatordate`: same-second tags tie there and it can
+          # hand back the older one. describe walks history, which is what we mean.
+          PREV="$(git describe --tags --abbrev=0 --match 'v*' 2>/dev/null || true)"
+
+          if [ -n "$PREV" ]; then
+            RANGE="${PREV}..HEAD"
+            echo "Previous release: $PREV"
+          else
+            RANGE=""
+            echo "No previous release; this is the first."
+          fi
+
+          # Nothing new to ship? Stop before creating an empty release.
+          COUNT="$(git log --no-merges --invert-grep --grep='^chore(release):' \
+                     --oneline ${RANGE} | wc -l | tr -d ' ')"
+          if [ "$COUNT" -eq 0 ]; then
+            echo "No new commits since ${PREV}. Skipping release."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # vYYYY.MM.DD.N — N restarts each day and increments for same-day releases.
+          DATE="$(date -u +'%Y.%m.%d')"
+          LAST_N="$(git tag -l "v${DATE}.*" | sed "s/^v${DATE}\.//" | sort -n | tail -n 1 || true)"
+          NEXT_N="$(( ${LAST_N:-0} + 1 ))"
+          VERSION="v${DATE}.${NEXT_N}"
+
+          echo "Releasing ${VERSION} with ${COUNT} commit(s)."
+          echo "skip=false" >> "$GITHUB_OUTPUT"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "date=$(date -u +'%Y-%m-%d')" >> "$GITHUB_OUTPUT"
+
+          # Changelog body, written to a file so multi-line content survives intact.
+          git log --no-merges --invert-grep --grep='^chore(release):' \
+                  --pretty=format:'- %s (`%h`)' ${RANGE} > /tmp/changes.md
+          printf '\n' >> /tmp/changes.md
+
+      - name: Update RELEASE_NOTES.md
+        if: steps.version.outputs.skip == 'false'
+        run: |
+          set -euo pipefail
+          VERSION="${{ steps.version.outputs.version }}"
+          DATE="${{ steps.version.outputs.date }}"
+
+          {
+            echo '# Release Notes'
+            echo
+            echo 'Every release of the Minipod docs site, newest first. Generated automatically'
+            echo 'on each push to `main` — edit the workflow, not this file.'
+            echo
+            echo "## ${VERSION} — ${DATE}"
+            echo
+            cat /tmp/changes.md
+            echo
+            # Carry over everything below the old header, if the file already exists.
+            if [ -f RELEASE_NOTES.md ]; then
+              sed -n '/^## /,$p' RELEASE_NOTES.md
+            fi
+          } > /tmp/RELEASE_NOTES.md
+
+          mv /tmp/RELEASE_NOTES.md RELEASE_NOTES.md
+
+      - name: Commit, tag and publish
+        if: steps.version.outputs.skip == 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          VERSION="${{ steps.version.outputs.version }}"
+
+          git config user.name  'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+
+          git add RELEASE_NOTES.md
+          git commit -m "chore(release): ${VERSION} [skip release]"
+
+          git tag -a "${VERSION}" -m "Release ${VERSION}"
+          git push origin HEAD:main
+          git push origin "${VERSION}"
+
+          gh release create "${VERSION}" \
+            --title "${VERSION}" \
+            --notes-file /tmp/changes.md
+
+      - name: Summary
+        if: always()
+        run: |
+          if [ "${{ steps.version.outputs.skip }}" = "true" ]; then
+            echo "No new commits — no release created." >> "$GITHUB_STEP_SUMMARY"
+          elif [ -n "${{ steps.version.outputs.version }}" ]; then
+            echo "Released **${{ steps.version.outputs.version }}**" >> "$GITHUB_STEP_SUMMARY"
+            echo >> "$GITHUB_STEP_SUMMARY"
+            cat /tmp/changes.md >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "Build failed — no release created." >> "$GITHUB_STEP_SUMMARY"
+          fi

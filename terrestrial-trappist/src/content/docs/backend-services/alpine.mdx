@@ -1,0 +1,48 @@
+---
+title: Alpine
+description: An overview of GoBolt's Delivery Partner Service.
+---
+
+import AlpineIntegrations from '../../../components/diagrams/AlpineIntegrations.astro';
+import { Badge } from '@astrojs/starlight/components';
+
+- **Repository:** <a href="https://github.com/SecondCloset/alpine" target="_blank" rel="noopener noreferrer">SecondCloset/alpine</a>
+- **Type of application:** <Badge text="Backend service" variant="note" />
+- **Written in:** <Badge text="NestJS" variant="note" /> + <Badge text="Node.js" variant="note" /> + <Badge text="TypeScript" variant="note" />
+- **Build/release tooling:** <Badge text="GitHub Actions" variant="note" /> + <Badge text="Docker" variant="note" />
+- **Deployed on:** <Badge text="Kubernetes" variant="note" /> + <Badge text="ArgoCD" variant="note" />
+
+---
+
+### What is Alpine?
+
+Alpine is GoBolt's Delivery Service Partner Service. It manages delivery partner (DSP) companies and their users — profiles, activation/deactivation, invites, and roles. It's the identity/profile layer for anyone delivering on GoBolt's behalf who isn't a direct GoBolt employee-driver.
+
+---
+
+### Who uses Alpine?
+
+Alpine supports internal systems that manage delivery partners and their users. Core exchanges partner and signup data with Alpine, while BVR uses Alpine for DSP management.
+
+---
+
+### What does Alpine do?
+
+| Area | What Alpine supports |
+| --- | --- |
+| **Partner profiles** | Stores DSP company profiles and records. |
+| **User management** | Manages activation, deactivation, invitations, and roles for partner users. |
+| **Delivery-partner identity** | Maintains profiles for people delivering on behalf of GoBolt through a DSP. |
+| **Core synchronization** | Exchanges partner, signup, user, invitation, and role data with Core. |
+
+
+### The Services Connected to Alpine
+
+| Service | How it connects to Alpine |
+| --- | --- |
+| **Core** | Pushes partner and signup data to Alpine and receives user, invitation, and role-management requests. |
+| **BVR** | Uses Alpine's DSP profile and driver-management data. |
+
+### Architecture Overview
+
+<AlpineIntegrations />

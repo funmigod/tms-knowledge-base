@@ -1,0 +1,85 @@
+---
+title: Sortation
+description: How Core drives the BeeSort automated sorter, and why it integrates with it directly.
+---
+
+import SortationFlow from '../../../components/diagrams/SortationFlow.astro';
+import { Aside } from '@astrojs/starlight/components';
+
+Sortation is the step where a mixed pile of packages becomes an ordered set: one bin per destination market, or one bin per van. GoBolt has done this by hand, and is moving it onto a [BeeSort](/glossary/beesorter/) automated sorter.
+
+<SortationFlow />
+
+---
+
+### Why automate it
+
+Manual sortation fails in four related ways, and the fourth is the expensive one:
+
+- **Mis-containerization** — packages put on the wrong route or pallet.
+- **Lost packages** — hard to locate once mis-sorted.
+- **Downstream failures** — the [RTW](/glossary/rtw/) flow breaks when a driver is told to return a package that was never actually loaded for them.
+- **Labour cost** — sorting by hand needs dedicated warehouse staff.
+
+The third is worth dwelling on. A sortation mistake does not stay in the warehouse: it becomes a driver holding a return list that does not match the van, and an unresolvable [chain of custody](/glossary/chain-of-custody/) gap hours later and miles away.
+
+---
+
+### How the flow works
+
+These steps match the numbered badges in the diagram above.
+
+1. **A package is scanned at origin.** Core resolves its [route code](/glossary/route-code/) and enqueues an async push. This happens one package at a time, in real time.
+2. **Or ops select a wave in Providence.** For destination sorting, ops choose a route date and a set of zones, and Core collects the packages for them as a batch.
+3. **Core pushes the mappings.** Each is a tracking number paired with a route code, sent to the BeeSort Cloud API alongside the device's serial number. Batches are capped at 500 mappings per call.
+4. **BeeSort Cloud syncs to the device.** The machine resolves codes from its own local database during sorting, so it keeps running independently of the network.
+5. **The device sorts into chutes.** An operator has assigned each route code to a physical [chute](/glossary/chute/); packages land in the matching one, at up to 15,000 per hour.
+
+---
+
+### Two sorts, two questions
+
+The same package is sorted twice on its journey, and the two sorts work differently because they are answering different questions.
+
+| | Origin sort | Destination sort |
+| --- | --- | --- |
+| **Question** | Which market is this leaving for? | Which van tomorrow morning? |
+| **Trigger** | Every [origin scan](/glossary/origin-scan/), in real time | Ops, per wave, in Providence |
+| **Route code** | Zone code for local packages; [service area](/glossary/service-area/) name for [air skips](/glossary/air-skip/) | Route number |
+| **Chute assignments** | Static — roughly 12 zones and service areas, managed on the device | Rebuilt each wave and returned to Providence |
+| **Providence UI** | Not needed | Required |
+
+---
+
+### Wave management
+
+A device has fewer chutes than a facility has routes, so destination sorting runs in waves rather than one pass.
+
+Ops select a set of zones. Core finds the [parcel](/glossary/heavy-vs-parcel/) routes with appointments in those zones, excludes any already pushed in an earlier wave, and takes the next batch of up to 33 routes sorted by route number. Everything else is mapped to `LEFTOVER` and lands in the two reserved chutes, to be re-fed once its route has a chute of its own.
+
+Two details are easy to get wrong:
+
+- **Only the selected zones are pushed, not whole routes.** If route 10 has packages in zone A and zone B, sorting zone A pushes only its zone A packages. The zone B packages come later, when zone B is sorted.
+- **Cross-zone packages can land in leftover legitimately.** A package whose zone has not been sorted yet is not an error — it is early, and gets re-fed or hand-sorted afterwards.
+
+Ops then either run the next wave for the same zones, or reset and pick a new set.
+
+---
+
+### Why Core talks to BeeSort directly
+
+The machine is shared with fulfillment, which already has its own BeeSort integration running through November. Transport could have reused it. It deliberately does not.
+
+Core calls the BeeSort Cloud API itself, which keeps the transport integration from coupling to the fulfillment one and respects a hard constraint of the project: no changes to the existing MetaPod/November integration. The two integrations share a physical machine on a schedule, and nothing else.
+
+<Aside type="note" title="Zone code is not service area">
+Both are geographies, and mixing them up produces a sort that looks plausible and is wrong. A `zone_code` is an [FSA](/glossary/fsa/) derived from the postal code — far too granular to give each one a chute. Sorting by market instead uses the service area name from the appointment's [time box](/glossary/timebox/).
+</Aside>
+
+---
+
+### Scope and constraints
+
+The integration is gated behind a `bee-sort-enabled` feature flag with facility-level targeting, and is configured per device: each row carries its own facility, serial number, chute count, and reserved leftover chutes, so the 33-plus-2 arrangement is a default rather than a fixed rule.
+
+Deliberately out of scope for the initial release: BeeSort's dimensioning and label-printing capabilities, the webhook that would report sort results back, and any automatic push — a session is always triggered by a person.

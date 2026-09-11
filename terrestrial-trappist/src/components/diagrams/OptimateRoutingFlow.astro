@@ -1,0 +1,48 @@
+---
+import DiagramFrame from './DiagramFrame.astro';
+---
+
+<DiagramFrame
+	label="Optimate Routing Flow"
+	viewBox="0 0 920 300"
+	ariaLabel="Optimate routing request and response flow"
+	description="Silver dispatches a routing job to Optimate Router over Google Pub/Sub. Optimate Router solves the routing problem and returns optimized routes or unplanned stops to Silver, also over Pub/Sub."
+>
+	<!-- Two one-directional edges between Silver and Optimate: request above, response below. -->
+	<g class="connectors">
+		<path d="M 280 118 H 640" />
+		<path d="M 640 182 H 280" />
+	</g>
+
+	<!-- Ordered steps, one badge per connector, matching the connectors group above. -->
+	<g class="step-badges">
+		<g transform="translate(350 118)">
+			<circle r="12" />
+			<text y="4">1</text>
+		</g>
+		<g transform="translate(570 182)">
+			<circle r="12" />
+			<text y="4">2</text>
+		</g>
+	</g>
+
+	<g class="edge-labels">
+		<text x="460" y="106">Routing job (Pub/Sub)</text>
+		<text x="460" y="204">Optimized routes (Pub/Sub)</text>
+	</g>
+
+	<a href="/backend-services/silver/" class="node-link" aria-label="Silver — read the Silver service page">
+		<g class="node" transform="translate(40 100)">
+			<rect width="240" height="100" rx="14" />
+			<text x="120" y="45">Silver</text>
+			<text x="120" y="66" class="subtitle">(routing orchestration)</text>
+		</g>
+	</a>
+
+	<g class="node" transform="translate(640 100)">
+		<rect width="240" height="100" rx="14" />
+		<text x="120" y="45">Optimate Router</text>
+		<text x="120" y="66" class="subtitle">(ALNS optimizer)</text>
+	</g>
+</DiagramFrame>
+
