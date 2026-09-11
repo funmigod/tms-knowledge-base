@@ -1,0 +1,52 @@
+---
+title: Core
+description: An overview of GoBolt's Core service.
+---
+
+import CoreArchitectureOverview from '../../../components/diagrams/CoreArchitectureOverview.astro';
+import { Badge } from '@astrojs/starlight/components';
+
+- **Repository:** <a href="https://github.com/SecondCloset/sc-backend-api" target="_blank" rel="noopener noreferrer">SecondCloset/sc-backend-api</a>
+- **Type of application:** <Badge text="Backend service" variant="note" />
+- **Written in:** <Badge text="Ruby on Rails 8.1" variant="note" /> + <Badge text="PostgreSQL" variant="note" />
+- **Build/release tooling:** <Badge text="GitHub Actions" variant="note" /> + <Badge text="Docker" variant="note" />
+- **Deployed on:** <Badge text="Kubernetes" variant="note" /> (GKE) + <Badge text="Helm" variant="note" /> + <Badge text="ArgoCD" variant="note" />
+
+---
+
+### What is Core?
+
+Core is the original monolith and system of record for basically everything — accounts/users/roles, fulfillment orders, warehouse operations, and logistics/shipments/appointments. It's increasingly home to the new `Transport::` domain, which is absorbing rate/zone logic from Hubble.
+
+---
+
+### Who uses Core?
+
+Every other backend service (Alpine, Blue, Silver, Hubble) and every frontend (BVR, Galileo, Maverick) ultimately syncs with Core in a hub-and-spoke pattern, with Core as the hub.
+
+---
+
+### What does Core do?
+
+| Area | What Core supports |
+| --- | --- |
+| **Accounts, users, and roles** | Acts as the system of record for identity and access data. |
+| **Fulfillment and warehouse operations** | Stores fulfillment orders and supports warehouse workflows. |
+| **Logistics and appointments** | Stores shipment, logistics, and appointment data. |
+| **Transport domain** | Hosts the growing `Transport::` domain, including rate and zone logic moving from Hubble. |
+
+
+### The Services Connected to Core
+
+| Service | How it connects to Core |
+| --- | --- |
+| **BVR** | Reads and writes routes, appointments, users, organizations, merchants, and packages. |
+| **Galileo** | Authenticates tracking requests and retrieves delivery details. |
+| **Maverick** | Retrieves routes and appointments and sends loading and appointment-status updates. |
+| **Alpine** | Exchanges delivery-partner, user, invitation, and role data. |
+| **Blue** | Exchanges addresses, completion data, zone lookups, and token validation. |
+| **Silver** | Creates routes in Core after route optimization. |
+
+### Architecture Overview
+
+<CoreArchitectureOverview />

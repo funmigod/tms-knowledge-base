@@ -1,0 +1,64 @@
+---
+import DiagramFrame from './DiagramFrame.astro';
+---
+
+<DiagramFrame
+	label="FBM Flow for Parcel"
+	viewBox="0 0 1400 720"
+	ariaLabel="Fulfilled by merchant parcel flow"
+	description="FBM calls Hubble directly, skipping a separate fulfillment organization. Hubble creates an order in the GBP organization, and BVR sees that order."
+>
+	<!-- Fixed connector paths matching the reference layout. -->
+	<g class="connectors">
+		<path d="M 560 95 H 173 Q 150 95 150 118 V 560" />
+		<path d="M 260 560 V 383 Q 260 358 285 358 H 660" />
+		<path d="M 905 358 H 1030" />
+	</g>
+
+	<!-- Ordered steps, one badge per connector, matching the connectors group above. -->
+	<g class="step-badges">
+		<g transform="translate(366 95)">
+			<circle r="12" />
+			<text y="4">1</text>
+		</g>
+		<g transform="translate(260 471)">
+			<circle r="12" />
+			<text y="4">2</text>
+		</g>
+		<g transform="translate(967 358)">
+			<circle r="12" />
+			<text y="4">3</text>
+		</g>
+	</g>
+
+	<a href="/glossary/fbm/" class="node-link" aria-label="FBM flow — read the FBM glossary entry">
+		<g class="node compact" transform="translate(560 50)">
+			<rect width="140" height="90" rx="14" />
+			<text x="70" y="53">FBM flow</text>
+		</g>
+	</a>
+
+	<a href="/hubble/overview/" class="node-link" aria-label="Hubble — read the Hubble overview">
+		<g class="node" transform="translate(60 560)">
+			<rect width="260" height="110" rx="14" />
+			<text x="130" y="65">Hubble</text>
+		</g>
+	</a>
+
+	<a href="/glossary/gbp/" class="node-link" aria-label="GBP ORG — read the GBP glossary entry">
+		<g class="node is-org" transform="translate(660 300)">
+			<rect width="245" height="116" rx="14" />
+			<rect class="eyebrow-tag" x="16" y="16" width="42" height="20" rx="10" />
+			<text class="eyebrow" x="37" y="30">ORG</text>
+			<text x="122.5" y="74">GBP ORG</text>
+		</g>
+	</a>
+
+	<a href="/frontend-services/bvr/" class="node-link" aria-label="BVR — read the BVR service page">
+		<g class="node" transform="translate(1030 300)">
+			<rect width="245" height="116" rx="14" />
+			<text x="122.5" y="66">BVR</text>
+		</g>
+	</a>
+</DiagramFrame>
+

@@ -1,0 +1,62 @@
+---
+title: Silver
+description: An overview of GoBolt's routing integration and metrics engine.
+---
+
+import { Badge } from '@astrojs/starlight/components';
+import SilverRoutingFlow from '../../../components/diagrams/SilverRoutingFlow.astro';
+
+- **Repository:** <a href="https://github.com/SecondCloset/silver" target="_blank" rel="noopener noreferrer">SecondCloset/silver</a>
+- **Type of application:** <Badge text="Backend service" variant="note" />
+- **Written in:** <Badge text="NestJS" variant="note" /> + <Badge text="Node.js" variant="note" /> + <Badge text="TypeScript" variant="note" />
+- **Build/release tooling:** <Badge text="GitHub Actions" variant="note" /> + <Badge text="Docker" variant="note" />
+- **Deployed on:** <Badge text="Kubernetes" variant="note" /> + <Badge text="ArgoCD" variant="note" />
+
+---
+
+### What is Silver?
+
+Silver is GoBolt's routing integration and metrics engine. It coordinates route-optimization requests between BVR, Optimate, and Core, and provides vehicle and route-analysis data.
+
+---
+
+### Who uses Silver?
+
+Silver is used by BVR for route-optimization jobs, vehicle data, ETAs, and route analysis. It exchanges optimization jobs with Optimate and creates the resulting routes in Core.
+
+---
+
+### What does Silver do?
+
+| Area | What Silver supports |
+| --- | --- |
+| **Vehicle data** | Stores information about vehicle kinds and provides vehicle data to BVR. |
+| **Route analysis** | Provides ETAs, stop-duration estimates, and travel-time estimates. |
+| **Job persistence and formatting** | Creates and persists each BVR routing job in Silver's SQL database, then formats the job for optimization. |
+| **Optimization integration** | Sends jobs to Optimate through Pub/Sub and receives Optimate's processed output. |
+| **Core route creation** | Formats Optimate's output for Core and creates routes in Core with the vehicle kind attached. |
+| **Metrics** | Acts as a metrics engine for routing data. |
+
+
+### The Services Connected to Silver
+
+| Service | How it connects to Silver |
+| --- | --- |
+| **BVR** | Sends routing requests to Silver and retrieves vehicle data, ETAs, route analysis, and metrics. |
+| **Optimate** | Receives formatted routing jobs from Silver through Pub/Sub, runs the route-optimization algorithm, and returns the output to Silver. |
+| **Core** | Receives Silver's formatted output as newly created routes with the vehicle kind attached. |
+
+### Routing Flow
+
+These steps match the numbered badges in the diagram below.
+
+1. **BVR requests route optimization.** BVR creates a routing job in Silver.
+2. **Silver persists the job.** The job is written to Silver's own SQL database.
+3. **Silver formats and publishes the job.** The formatted job is sent to Optimate through Pub/Sub.
+4. **Optimate optimizes the route.** Optimate processes the job and returns its output to Silver through Pub/Sub.
+5. **Silver prepares the result for Core.** Silver formats the output and creates the routes in Core with the relevant vehicle kind attached.
+6. **Silver reports back to BVR.** Vehicle data, ETAs, route analysis, and metrics are returned to BVR.
+
+### Architecture Overview
+
+<SilverRoutingFlow />

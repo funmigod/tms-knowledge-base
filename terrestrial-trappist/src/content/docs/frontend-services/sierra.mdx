@@ -1,0 +1,89 @@
+---
+title: Sierra
+description: An overview of GoBolt's internal administration and operations portal.
+---
+
+import { Badge } from '@astrojs/starlight/components';
+import SierraIntegrations from '../../../components/diagrams/SierraIntegrations.astro';
+
+- **Repository:** <a href="https://github.com/SecondCloset/sc-sierra" target="_blank" rel="noopener noreferrer">SecondCloset/sc-sierra</a>
+- **Type of application:** <Badge text="Frontend" variant="note" />
+- **Written in:** <Badge text="React 17" variant="note" /> + <Badge text="TypeScript" variant="note" /> + <Badge text="Create React App" variant="note" />
+- **State management:** <Badge text="Redux" variant="note" /> + <Badge text="React Query" variant="note" /> + <Badge text="React Context" variant="note" /> + <Badge text="Zustand" variant="note" />
+- **UI and styling:** <Badge text="Ant Design" variant="note" /> + <Badge text="SCSS" variant="note" /> + <Badge text="styled-components" variant="note" />
+- **Deployed on:** <Badge text="Docker" variant="note" /> + <Badge text="nginx" variant="note" /> + <Badge text="GKE" variant="note" />
+
+---
+
+### What is Sierra?
+
+Sierra is GoBolt's internal administration and operations web application. The repository predates the GoBolt rebrand, so its name, package names, and repository organization still contain Second Closet references.
+
+Sierra brings together customer service, appointments, fulfillment, warehouse operations, organizations, billing configuration, and access management in one internal portal.
+
+---
+
+### Who uses Sierra?
+
+Sierra is used by a broad range of internal GoBolt staff, including operations specialists and managers, support staff, supervisors, drivers, and movers. Navigation and actions are restricted by Sierra subroles such as `god`, `super`, `operation_specialist`, `operation_manager`, `support`, `supervisor`, `driver`, and `mover`.
+
+Sierra also manages application access for organization users. Administrators can grant access to the Admin Portal (Sierra), Merchant Portal (Business), Warehouse Portal (Providence), Routing Portal (BVR), and Mobile Pick App (Goose).
+
+---
+
+### What does Sierra do?
+
+| Area | What Sierra supports |
+| --- | --- |
+| **Customers and storage** | Manages customers, inventory, storage orders, returns, invoices, and manifests. |
+| **Appointments and packages** | Provides appointment details, bulk rescheduling, and bulk lost-package workflows. |
+| **Fulfillment** | Manages orders, shipments, advance shipping notices, warehouse release orders, products, transfers, and returns. |
+| **Organizations** | Manages organizations, stores, users, roles, carriers, event subscriptions, and application access. |
+| **Rates and billing configuration** | Provides organization rate-card configuration and shipping-cost import workflows. |
+| **Warehouse operations** | Supports manual stock entry and hours logging when the Billing Engine feature is enabled. |
+| **Commerce integrations** | Supports organization-level Shopify configuration and order synchronization. |
+
+---
+
+### The Backend Services Connected to Sierra
+
+| Service | What Sierra uses it for |
+| --- | --- |
+| **Core** | Sierra's primary backend. The accounts, fulfillment, logistics, storage, warehouse, and Shopify API domains are modules served by the Core host. |
+| **November** | A directly configured warehouse-management backend used for stock, product, ASN, shipment-product, and tracking workflows. |
+| **Pigeon** | Supplies boolean feature flags through its feature-flag endpoint. Sierra does not use Pigeon for live vehicle tracking. |
+| **bfapi** | Provides application- and organization-level feature and permission checks. |
+| **Hubble** | Reached indirectly through Core's accounts domain when Sierra provisions a corresponding Hubble merchant for an organization. Sierra has no direct Hubble API connection. |
+
+Sierra has no direct Alpine, Silver, or Blue integration in the application source.
+
+### Connected Applications and Third Parties
+
+| Application or service | How Sierra uses it |
+| --- | --- |
+| **Providence** | Opens warehouse packing-scan workflows through cross-application links. |
+| **BVR** | Opens route details through cross-application links and shares the organization application-access model. |
+| **Shopify** | Supports store installation and order synchronization through Core's Shopify domain. |
+| **Stripe** | Provides payment functionality configured with Sierra's Stripe public key. |
+| **Google Maps** | Supports mapping and address-autocomplete experiences. |
+| **Datadog RUM** | Captures browser monitoring data and associates sessions with the signed-in Sierra user. |
+
+---
+
+### Deployment
+
+Sierra is built as a Docker image and served by nginx on port 3000. The nginx configuration supports single-page-application routing and exposes a `/health` endpoint.
+
+The current deployment pipeline uses GitHub Actions, Google Artifact Registry, and Google Kubernetes Engine:
+
+- Staging branches deploy to the Minipod, Metapod, or Tidepod namespace on the shared staging cluster.
+- The `preprod` branch deploys to the pre-production GKE cluster.
+- Production builds and deployments are started manually through the production GitHub Actions workflow.
+
+The repository README describes an older `develop` → `release-x.x.x` → Heroku → `master` release process. That process has been superseded by the GKE workflows and should be treated as legacy documentation.
+
+---
+
+### Architecture Overview
+
+<SierraIntegrations />

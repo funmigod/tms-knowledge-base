@@ -1,0 +1,70 @@
+---
+import DiagramFrame from './DiagramFrame.astro';
+---
+
+<DiagramFrame
+	label="Hubble Service Integrations"
+	viewBox="0 0 1460 720"
+	ariaLabel="Hubble service dependency diagram"
+	description="Hubble's Core integration proxies merchant data, calls Label Service directly, and receives order-creation webhooks from Order Service, which Maverick feeds via pickup confirmations. Rate Service is being repointed to pull data from Core, and User Service is only cross-linked to Core by ID via a separate identity stack."
+>
+	<!-- Fixed connector paths matching the reference layout. -->
+	<g class="connectors">
+		<path d="M 165 300 V 170 Q 165 110 225 110 H 460" />
+		<path d="M 280 310 H 800" />
+		<path d="M 915 440 V 370 H 280" />
+		<path d="M 1180 490 H 1030" />
+		<path class="soft" d="M 165 560 V 400" />
+		<path class="soft both" d="M 465 560 V 460 H 250 V 400" />
+	</g>
+
+	<!-- Short edge labels sit at each connector's midpoint (dependency graph, no sequential order). -->
+	<g class="edge-labels">
+		<text x="342" y="96">Proxies merchant data</text>
+		<text x="540" y="298">Calls directly for labels</text>
+		<text x="598" y="358">Webhooks order creation</text>
+		<text x="1105" y="478">Pickup confirmation</text>
+		<text x="235" y="480">Repointing to pull rates</text>
+		<text x="358" y="448">Cross-linked by ID only</text>
+	</g>
+
+	<a href="/backend-services/core/" class="node-link" aria-label="Core — read the Core service page">
+		<g class="node" transform="translate(50 300)">
+			<rect width="230" height="100" rx="14" />
+			<text x="115" y="58">Core</text>
+		</g>
+	</a>
+
+	<g class="node" transform="translate(460 60)">
+		<rect width="230" height="100" rx="14" />
+		<text x="115" y="58">Merchant Service</text>
+	</g>
+
+	<g class="node" transform="translate(800 260)">
+		<rect width="230" height="100" rx="14" />
+		<text x="115" y="58">Label Service</text>
+	</g>
+
+	<g class="node" transform="translate(800 440)">
+		<rect width="230" height="100" rx="14" />
+		<text x="115" y="58">Order Service</text>
+	</g>
+
+	<g class="node" transform="translate(50 560)">
+		<rect width="230" height="100" rx="14" />
+		<text x="115" y="58">Rate Service</text>
+	</g>
+
+	<g class="node" transform="translate(350 560)">
+		<rect width="230" height="100" rx="14" />
+		<text x="115" y="58">User Service</text>
+	</g>
+
+	<a href="/frontend-services/maverick/" class="node-link" aria-label="Maverick — read the Maverick service page">
+		<g class="node" transform="translate(1180 440)">
+			<rect width="230" height="100" rx="14" />
+			<text x="115" y="58">Maverick</text>
+		</g>
+	</a>
+</DiagramFrame>
+

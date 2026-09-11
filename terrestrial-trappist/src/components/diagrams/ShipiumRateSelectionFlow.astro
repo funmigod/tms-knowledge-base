@@ -1,0 +1,100 @@
+---
+import DiagramFrame from './DiagramFrame.astro';
+---
+
+<DiagramFrame
+	label="Shipium Rate Selection Flow"
+	viewBox="0 0 1120 760"
+	ariaLabel="Shipium rate selection sequence"
+	description="The warehouse packer packs a parcel and Shipium requests a rate quote from GoBolt's Transport API. Shipium compares eligible carriers, and when GoBolt is selected, creates the order with GoBolt and returns the resulting shipping label to the packer."
+>
+	<!-- Lifelines: fixed vertical guides dropping from each participant down the timeline. -->
+	<g class="lifelines">
+		<path d="M 160 126 V 700" />
+		<path d="M 560 126 V 700" />
+		<path d="M 970 126 V 700" />
+	</g>
+
+	<!-- Ordered messages, one arrow per rung, top to bottom matching the mermaid source. -->
+	<g class="connectors">
+		<path d="M 160 200 H 560" />
+		<path d="M 560 290 H 970" />
+		<path d="M 970 380 H 560" />
+		<path d="M 560 480 H 970" />
+		<path d="M 970 570 H 560" />
+		<path d="M 560 660 H 160" />
+	</g>
+
+	<g class="step-badges">
+		<g transform="translate(360 200)">
+			<circle r="12" />
+			<text y="4">1</text>
+		</g>
+		<g transform="translate(765 290)">
+			<circle r="12" />
+			<text y="4">2</text>
+		</g>
+		<g transform="translate(765 380)">
+			<circle r="12" />
+			<text y="4">3</text>
+		</g>
+		<g transform="translate(765 480)">
+			<circle r="12" />
+			<text y="4">4</text>
+		</g>
+		<g transform="translate(765 570)">
+			<circle r="12" />
+			<text y="4">5</text>
+		</g>
+		<g transform="translate(360 660)">
+			<circle r="12" />
+			<text y="4">6</text>
+		</g>
+	</g>
+
+	<!-- Note over Shipium: a subtle annotation box, not a numbered message. -->
+	<g class="note">
+		<rect x="390" y="406" width="340" height="48" rx="8" />
+		<text x="560" y="434">Compares carriers via merchant config</text>
+	</g>
+
+	<g class="node" transform="translate(60 40)">
+		<rect width="200" height="86" rx="14" />
+		<text x="100" y="51">Warehouse packer</text>
+	</g>
+
+	<g class="node" transform="translate(460 40)">
+		<rect width="200" height="86" rx="14" />
+		<text x="100" y="51">Shipium</text>
+	</g>
+
+	<g class="node" transform="translate(845 40)">
+		<rect width="250" height="86" rx="14" />
+		<text x="125" y="51">GoBolt Transport API</text>
+	</g>
+</DiagramFrame>
+
+<style>
+	/* Vertical lifeline guides — a sequence-diagram-only convention for this diagram. */
+	.lifelines path {
+		fill: none;
+		stroke: var(--sl-color-gray-4);
+		stroke-width: 1.5;
+		stroke-dasharray: 4 5;
+	}
+
+	/* Note-over annotation — a subtle unnumbered callout, distinct from the numbered messages. */
+	.note rect {
+		fill: var(--sl-color-gray-6);
+		stroke: var(--sl-color-gray-4);
+		stroke-width: 1.5;
+		stroke-dasharray: 5 4;
+	}
+
+	.note text {
+		fill: var(--sl-color-gray-2);
+		font-size: 12.5px;
+		font-weight: 600;
+		text-anchor: middle;
+	}
+</style>

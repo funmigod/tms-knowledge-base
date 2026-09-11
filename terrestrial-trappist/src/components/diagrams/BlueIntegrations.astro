@@ -1,0 +1,42 @@
+---
+import DiagramFrame from './DiagramFrame.astro';
+---
+
+<DiagramFrame
+	label="Blue Integrations"
+	viewBox="0 0 760 470"
+	ariaLabel="Blue service dependency diagram"
+	description="Core and Blue exchange data bidirectionally: Core sends addresses and completion data and requests zone lookups, while Blue validates Core's bearer tokens. BVR calls Blue one-way for zone and appointment-completion data."
+>
+	<!-- Orthogonal elbows: out of Core/BVR horizontally, down or up the shared x=410
+	     spine, then square into Blue's left edge so the arrowheads meet it head-on. -->
+	<g class="connectors">
+		<path class="both" d="M 270 80 H 390 Q 410 80 410 100 V 185 Q 410 205 430 205 H 480" />
+		<path d="M 270 380 H 390 Q 410 380 410 360 V 275 Q 410 255 430 255 H 480" />
+	</g>
+
+	<g class="edge-labels">
+		<text x="330" y="150">Addresses, zones &amp; tokens</text>
+		<text x="330" y="312">Zones &amp; completion data</text>
+	</g>
+
+	<a href="/backend-services/core/" class="node-link" aria-label="Core — read the Core service page">
+		<g class="node" transform="translate(40 30)">
+			<rect width="230" height="100" rx="14" />
+			<text x="115" y="58">Core</text>
+		</g>
+	</a>
+
+	<a href="/frontend-services/bvr/" class="node-link" aria-label="BVR — read the BVR service page">
+		<g class="node" transform="translate(40 330)">
+			<rect width="230" height="100" rx="14" />
+			<text x="115" y="58">BVR</text>
+		</g>
+	</a>
+
+	<g class="node" transform="translate(480 175)">
+		<rect width="240" height="110" rx="14" />
+		<text x="120" y="63">Blue</text>
+	</g>
+</DiagramFrame>
+

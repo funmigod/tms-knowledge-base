@@ -1,0 +1,59 @@
+---
+title: Galileo
+description: An overview of GoBolt's customer-facing delivery tracking experience.
+---
+
+import { Badge } from '@astrojs/starlight/components';
+import GalileoIntegrations from '../../../components/diagrams/GalileoIntegrations.astro';
+
+- **Repository:** <a href="https://github.com/SecondCloset/galileo" target="_blank" rel="noopener noreferrer">SecondCloset/galileo</a>
+- **Available at:** <a href="https://track.gobolt.com/tracking" target="_blank" rel="noopener noreferrer">track.gobolt.com/tracking</a>
+- **Pre-production:** <a href="https://track.prep.gobolt.com/" target="_blank" rel="noopener noreferrer">track.prep.gobolt.com</a>
+- **Staging:** <a href="https://track.stg4.gobolt.com/" target="_blank" rel="noopener noreferrer">track.stg4.gobolt.com</a>
+- **Type of application:** <Badge text="Frontend" variant="note" /> 
+- **Written in:** <Badge text="React" variant="note" /> + <Badge text="TypeScript" variant="note" />
+- **Key libraries:** <Badge text="google-map-react" variant="note" /> + <Badge text="react-google-autocomplete" variant="note" />
+- **Build/release tooling:** <Badge text="GitHub Actions" variant="note" /> + <Badge text="Docker" variant="note" />
+- **Deployed on:** <Badge text="Kubernetes" variant="note" /> (GKE) on <Badge text="GCP" variant="note" />, served by <Badge text="nginx" variant="note" />
+
+---
+
+### What is Galileo?
+
+Galileo is GoBolt's customer-facing delivery tracking page. A shopper receives its link by SMS or email after ordering, then uses it to follow their delivery in real time.
+
+Customers do not need an account. They enter a postal code and tracking or order number, which Galileo exchanges with Core for a short-lived JWT scoped to that delivery.
+
+---
+
+### Who uses Galileo?
+
+Unlike BVR (internal ops) or Maverick (drivers), Galileo's only users are end customers — anonymous, one delivery at a time. It's designed to answer the questions a shopper has after an order leaves the warehouse: where the delivery is, when it's expected to arrive, and whether anything needs their attention.
+
+---
+
+### What does Galileo do?
+
+| Area | What Galileo supports |
+| --- | --- |
+| **Live map view** | Shows the driver’s location, route, and estimated time of arrival in real time. |
+| **Shipment lookup** | Retrieves delivery status and details using a tracking or order number. |
+| **Feedback redirects** | Sends customers to provide feedback after a completed delivery. |
+
+
+### The Backend Services Connected to Galileo
+
+| Service | What Galileo uses it for |
+| --- | --- |
+| **Core** | Authenticates a customer from their postal code and tracking or order number, returning a temporary delivery-scoped JWT. Galileo then retrieves the delivery’s order, package, appointment, status, and tracking information from Core. |
+| **Pigeon** | Provides real-time driver and truck location data for day-of-delivery map tracking. Maverick sends location updates to Pigeon every five seconds; Galileo and BVR then use that telematics data to show the live vehicle position. |
+
+### Deployment
+
+Galileo is built as a Docker image served by nginx, pushed to Google Artifact Registry by GitHub Actions, and run on Google Kubernetes Engine. Production deploys to the `prd-prod` cluster in the `galileo` namespace, updated with `kubectl set image`. Separate workflows cover staging, pre-production, and production.
+
+---
+
+### Architecture Overview
+
+<GalileoIntegrations />

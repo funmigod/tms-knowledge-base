@@ -1,0 +1,89 @@
+---
+title: Fulfilled by Bolt
+description: Documentation for the fbb architecture flow.
+---
+
+import FBBFlowForParcel from '../../../components/diagrams/FBBFlowForParcel.astro';
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+These flows are for parcel shipments only.
+
+<FBBFlowForParcel />
+
+---
+
+### How the flow works
+
+These steps match the numbered badges in the diagram above.
+
+<Steps>
+
+1. **An order arrives in the Fulfillment ORG.**
+
+   The order comes in through one of several ingestion paths — API, CSV upload, Shopify, or another integration — and lands in the Fulfillment ORG. This describes the heavy FBB flow specifically, not GBP the carrier.
+
+2. **Core checks Org Config for a twin org.**
+
+   When the order's shipment is created, Core checks whether the organization has a linked Transport twin org (`fbb_fulfillment_org_id` / `hubble_organization_id`) and whether the heavy-flow unified path is enabled for it. This check only fires for **Heavy** service codes — Parcel orders never touch it.
+
+   On the Fulfillment ORG side, the shipment starts out as an **ECS** (External Carrier Shipment): a shell record created before a carrier or appointment is finalized.
+
+3. **Core calls Hubble to create the twin order.**
+
+   If a twin org is linked, Hubble creates a matching order in the twin Transport org. That order-creation event is relayed back into Core through **Jarvis** — a shared event/webhook broker — rather than Hubble calling Core's endpoint directly.
+
+4. **The twin org gets the appointment.**
+
+   The shipment actually gets its appointment in the twin org. This is the record visible in TMS (BVR) — not the original Fulfillment ORG record.
+
+</Steps>
+
+<Aside type="caution" title="Naming collision: two different GBPs">
+Core's own code informally nicknames the twin org **"(GBP)"** in a few places — org display names, an internal dashboard variable. This has **nothing** to do with GBP the GoBolt Parcel shipping carrier.
+
+Selecting GBP as a carrier for a parcel shipment is a separate, single-org mechanism that never creates a twin org and never calls Hubble.
+</Aside>
+
+---
+
+### Why this creates a duplicate order
+
+The flow creates two separate records for the same physical heavy shipment:
+
+| Record | Where it lives | What it is |
+| --- | --- | --- |
+| **ECS** | Fulfillment ORG | A shell shipment record, created before a carrier or appointment is finalized. |
+| **Shipment + appointment** | Twin Transport org | The full record, with the appointment attached. This is what TMS (BVR) shows. |
+
+Operations staff working in TMS only ever see the twin-org copy. The original Fulfillment ORG order and its twin are two records describing one shipment, linked only through Org Config rather than being the same underlying record. That split is what this page documents.
+
+---
+
+### Fulfillment ORG vs. GBP ORG
+
+| | Fulfillment ORG | GBP ORG (twin org) |
+| --- | --- | --- |
+| **What it is** | The merchant's actual, original organization record in Core. | A second, separate organization record created specifically for heavy FBB merchants. |
+| **What lives there** | The merchant's real business: orders, inventory (ASNs, stock), products, warehouse activity. | Nothing of the merchant's own — it exists so heavy deliveries can run through the modern Transport/Appointment system. |
+| **How it's modelled** | A normal `Account::Organization` in Core's accounts domain — nothing special about it. | A clone/sibling org, linked back to the Fulfillment org purely through org-config pointers (`fbb_fulfillment_org_id`, `hubble_organization_id`). |
+| **Purpose** | The real merchant. | A shadow org, so heavy shipments can be scheduled and dispatched through the newer system without migrating the merchant's real data. |
+
+There's no deeper structural connection between the two than that config pointer. The "(GBP)" in the twin org's name is just an internal naming convention Core happens to use — and the confusing part is that the shadow org's nickname and the unrelated shipping carrier share the same three letters.
+
+---
+
+### Why we have the twin orgs
+
+Migrating a merchant's real Fulfillment org onto the modern Transport system outright was considered too risky and too slow. **The twin org is a shortcut, not an ideal design.**
+
+The reasoning comes from **ADR-0002**. Heavy and hard-to-handle deliveries were stuck on an old, manual scheduling system — Appointment-based, fixed 4-hour windows — because the modern Transport API, with its automated routing, package dimensioning, and CSV uploads, was built to work with Transport-type orgs, not Fulfillment orgs. Historically the two org types had no formal relationship at all.
+
+The "correct" fix would have been migrating each heavy merchant's actual data into a proper Transport org. But that's a real data migration, with real risk of breaking existing functionality for merchants already running fine on the old flow. Given a 6-week timeline and a hard constraint of *"can't break existing single-org FBB heavy functionality,"* the team chose the cheaper option:
+
+- Don't move the data.
+- Create a lightweight, linked twin org that can talk to the Transport API.
+- Coordinate the two orgs via tracking numbers and org config instead of merging them.
+
+It's explicitly the only option considered in that ADR, and its own listed downside is *"duplicate org and shipment data in our system temporarily."* So the twin-org pattern was a deliberate trade: accept known duplication now, roll it out gradually per-org behind a feature flag, in exchange for not touching real merchant data during a risky migration.
+
+In short, it exists because it was the fast, safe way to bolt modern routing onto old data — not because duplication was ever the goal. Per ADR-0006/0007/0008, the broader direction is still to eventually collapse this properly rather than keep the twin-org bridge forever.

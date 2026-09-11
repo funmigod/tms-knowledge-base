@@ -1,0 +1,83 @@
+---
+import DiagramFrame from './DiagramFrame.astro';
+---
+
+<DiagramFrame
+	label="Sierra Integrations"
+	viewBox="0 0 1220 905"
+	ariaLabel="Sierra service dependency diagram"
+	description="Sierra, GoBolt's internal admin portal, depends directly on Core, November, Pigeon, and bfapi for backend APIs. Hubble is reached indirectly through Core, while Providence and BVR are linked only through contextual deep links."
+>
+	<!-- Hub-and-spoke connectors: Sierra fans out to each dependency, Core fans out to Hubble. -->
+	<g class="connectors">
+		<path d="M 280 403 H 310 Q 320 403 320 393 V 100 Q 320 90 330 90 H 650" />
+		<path d="M 280 423 H 340 Q 350 423 350 413 V 245 Q 350 235 360 235 H 650" />
+		<path d="M 280 443 H 370 Q 380 443 380 433 V 390 Q 380 380 390 380 H 650" />
+		<path d="M 280 463 H 400 Q 410 463 410 473 V 515 Q 410 525 420 525 H 650" />
+		<path class="soft" d="M 280 483 H 430 Q 440 483 440 493 V 660 Q 440 670 450 670 H 650" />
+		<path class="soft" d="M 280 503 H 460 Q 470 503 470 513 V 805 Q 470 815 480 815 H 650" />
+		<path d="M 880 90 H 915 Q 925 90 925 100 V 210 Q 925 220 935 220 H 970" />
+	</g>
+
+	<!-- Short technical labels at each connector's midpoint, in place of the FBB flow's numbered steps -->
+	<!-- since this is a dependency graph rather than a strictly sequential flow. -->
+	<g class="edge-labels">
+		<text x="490" y="80">Fulfillment &amp; Shopify APIs</text>
+		<text x="505" y="225">Warehouse stock &amp; tracking</text>
+		<text x="520" y="370">Boolean feature flags</text>
+		<text x="560" y="508">Feature &amp; permission checks</text>
+		<text x="940" y="150">Provision corresponding merchant</text>
+		<text x="570" y="655">Packing-scan deep links</text>
+		<text x="565" y="805">Route-detail deep links</text>
+	</g>
+
+	<g class="node is-hub" transform="translate(40 383)">
+		<rect width="240" height="140" rx="14" />
+		<text x="120" y="62">Sierra</text>
+		<text class="subtitle" x="120" y="90">Internal Admin Portal</text>
+	</g>
+
+	<a href="/backend-services/core/" class="node-link" aria-label="Core — read the Core service page">
+		<g class="node" transform="translate(650 40)">
+			<rect width="230" height="100" rx="14" />
+			<text x="115" y="56">Core</text>
+		</g>
+	</a>
+
+	<g class="node" transform="translate(650 185)">
+		<rect width="230" height="100" rx="14" />
+		<text x="115" y="56">November</text>
+	</g>
+
+	<a href="/backend-services/pigeon/" class="node-link" aria-label="Pigeon — read the Pigeon service page">
+		<g class="node" transform="translate(650 330)">
+			<rect width="230" height="100" rx="14" />
+			<text x="115" y="56">Pigeon</text>
+		</g>
+	</a>
+
+	<g class="node" transform="translate(650 475)">
+		<rect width="230" height="100" rx="14" />
+		<text x="115" y="56">bfapi</text>
+	</g>
+
+	<g class="node" transform="translate(650 620)">
+		<rect width="230" height="100" rx="14" />
+		<text x="115" y="56">Providence</text>
+	</g>
+
+	<a href="/frontend-services/bvr/" class="node-link" aria-label="BVR — read the BVR service page">
+		<g class="node" transform="translate(650 765)">
+			<rect width="230" height="100" rx="14" />
+			<text x="115" y="56">BVR</text>
+		</g>
+	</a>
+
+	<a href="/hubble/overview/" class="node-link" aria-label="Hubble — read the Hubble overview">
+		<g class="node" transform="translate(970 175)">
+			<rect width="210" height="90" rx="14" />
+			<text x="105" y="53">Hubble</text>
+		</g>
+	</a>
+</DiagramFrame>
+

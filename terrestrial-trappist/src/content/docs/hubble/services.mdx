@@ -1,0 +1,85 @@
+---
+title: Hubble Services
+description: An overview of Hubble's backend services.
+---
+
+import HubbleServiceIntegrations from '../../../components/diagrams/HubbleServiceIntegrations.astro';
+
+### Hubble's Backend Services
+
+#### Merchant Service
+
+Manages the merchant/customer accounts that ship through Hubble: their profiles, configuration, and — per the rates ADR — their pricing zones and shipping rules, stored in DynamoDB. It's the record of "who is shipping with us," and it's what Core's `Transport::` merchants endpoint currently just proxies through to rather than owning itself.
+
+---
+
+#### Order Service
+
+Handles order intake and status updates: when a merchant books a shipment through Hubble, this is what creates that order and tracks it as its status changes (picked up, in transit, delivered, etc.). It's also the one piece of Hubble that Maverick talks to directly, to confirm carrier pickups via tracking-event webhooks, and it's the service that webhooks Core to create the matching `Fulfillment::Order` on Core's side — making it the actual origin point of the order-duplication problem.
+
+---
+
+#### Label Service
+
+Generates the physical shipping labels and packing slips for an order, given an order ID or tracking number. Core calls out to this directly for BoxKnight/Hubble-carrier shipments rather than generating the PDF itself.
+
+---
+
+#### Rate Service
+
+Calculates shipping rate quotes and available delivery windows based on origin/destination postal codes and the merchant's configured pricing zones. This is the piece actively being rearchitected — it's being repointed to pull rate/zone data from Core's new `Transport::` domain instead of owning that data itself, per the "two sources of truth" ADR.
+
+---
+
+#### User Service
+
+Manages login/identity for people using the Hubble platform (merchant portal users, etc.), backed by AWS Cognito — a completely separate identity stack from Core's own Doorkeeper-based user system, cross-linked only by ID rather than being one shared user table.
+
+---
+
+#### BoxKnight Admin
+
+Not a service of its own — a privileged, elevated-access identity Core (and Maverick) use to authenticate into Hubble, separate from regular merchant-scoped credentials. Core actually has two parallel clients: `Boxknight::Client`, which authenticates with normal username/password for regular per-merchant operations (rates, shipment creation, labels), and `Boxknight::AdminClient`, which authenticates separately via `/auth/token/admin` using dedicated admin credentials for cross-merchant, account-management-level access — fetching, creating, listing, updating, or archiving merchants, linking a Hubble merchant to its GoBolt organization, and creating returns through a privileged endpoint. It's the same admin credential pair (`box_knight_admin_username`/`box_knight_admin_password`) that shows up in Maverick's login response to mint its own separate Hubble token — one shared "admin identity" into Hubble, used wherever GoBolt's own systems (not an individual merchant) need to act on Hubble data at a platform level.
+
+---
+
+#### Parcel Merchant Dashboard
+
+Likely the merchant-facing portal: where a Hubble merchant logs in (backed by User Service's Cognito auth) to see their own orders, get rate quotes, print labels, and manage their own account (backed by Merchant Service). This is probably what people meant earlier when the ADR referenced a "Hubble Merchant Portal."
+
+---
+
+#### Parcel Admin Dashboard
+
+Likely the internal GoBolt ops-facing counterpart: where GoBolt staff (not merchants) manage the platform at large — viewing/editing any merchant, archiving accounts, handling admin-level returns. This would be the human interface sitting behind the elevated `Boxknight::AdminClient` operations (list all merchants, create/archive a merchant, link to a GoBolt org).
+
+---
+
+### Deployment
+
+Hubble's backend services deploy on a completely separate stack from Core's — GitLab CI rather than GitHub Actions, and AWS Elastic Beanstalk rather than Google Kubernetes Engine.
+
+Each service's `.gitlab-ci.yml` runs the same shape of pipeline: prepare, test, apply Terraform, then a deploy stage that runs `eb deploy` against the service's Elastic Beanstalk environment. Production deploys are gated on `master` — merging to `master` is what ships. Release-candidate branches (`rc-*`) and merge requests targeting them deploy to the `stage` environment instead.
+
+| Service | Elastic Beanstalk environment |
+| --- | --- |
+| **Merchant Service** | `merchants-service-env` |
+| **Order Service** | `orders-service-env` |
+| **Label Service** | `labels-service-env` |
+| **Rate Service** | `rates-service-env` |
+| **User Service** | `users-service-env` |
+
+Most pipelines also include an `api-gateway-deployment` stage that updates the AWS API Gateway configuration after the service deploys.
+
+The two dashboards (Parcel Merchant Dashboard and Parcel Admin Dashboard) are reported to be hosted on AWS Amplify. This has not been verified against the repositories.
+
+---
+
+### Architecture Overview
+
+<HubbleServiceIntegrations />
+
+---
+
+### Challenges with Hubble Services
+TBD

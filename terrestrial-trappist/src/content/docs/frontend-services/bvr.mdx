@@ -1,0 +1,97 @@
+---
+title: BVR
+description: An overview of GoBolt's Transportation Management System.
+---
+
+import { Card, CardGrid, Badge } from '@astrojs/starlight/components';
+import BVRArchitectureOverview from '../../../components/diagrams/BVRArchitectureOverview.astro';
+
+- **Repository:** <a href="https://github.com/SecondCloset/BVR" target="_blank" rel="noopener noreferrer">SecondCloset/BVR</a>
+- **Available at:** <a href="http://tms.gobolt.com" target="_blank" rel="noopener noreferrer">tms.gobolt.com</a>
+- **Staging - available at:** <a href="https://tms.stg4.gobolt.com" target="_blank" rel="noopener noreferrer">tms.stg4.gobolt.com</a>
+- **Type of application:** <Badge text="Frontend" variant="note" />
+- **Written in:** <Badge text="React" variant="note" /> + <Badge text="TypeScript" variant="note" /> + <Badge text="Vite" variant="note" />
+- **Build/release tooling:** <Badge text="GitHub Actions" variant="note" /> + <Badge text="Docker" variant="note" />
+- **Deployed on:** <Badge text="Kubernetes" variant="note" /> (GKE) on <Badge text="GCP" variant="note" />
+
+---
+
+### What is BVR?
+
+BVR (Boss Vehicle Routing) is GoBolt's Transportation Management System (TMS). It is the operations-facing web application used by dispatchers and operations teams to plan delivery routes, assign work to drivers, monitor deliveries, and manage day-to-day transportation operations.
+
+The application powers the **Routing**, **Dispatch**, and **Tracking** experiences available at <a href="http://tms.gobolt.com" target="_blank" rel="noopener noreferrer">tms.gobolt.com</a>. It serves as the primary interface for managing last-mile delivery operations.
+
+---
+
+### Who uses BVR?
+
+BVR is used by internal GoBolt operations staff — specifically dispatchers and routing ops — not drivers, not customers, not merchants. Access is permissioned: Sierra's own admin panel has a role literally labeled "Routing Portal (BVR)" that an org admin grants to specific users, so it's a controlled-access internal tool rather than something every employee touches.
+
+---
+
+### What does BVR do?
+
+It's GoBolt's TMS — the console where a route actually gets built, assigned, and watched in real time:
+
+| Area | What BVR supports |
+| --- | --- |
+| **Routing** | Builds and automates delivery routes by starting Silver routing jobs, including IKEA- and parcel-specific variants. |
+| **Dispatch** | Assigns completed routes to drivers. |
+| **Tracking** | Shows live route status, ETA, remaining stops, and vehicle location on a map. |
+| **Appointments** | Manages scheduled delivery windows. |
+| **Custom appointments** | Handles non-standard, one-off delivery bookings outside the normal scheduling flow. |
+| **Capacity planning** | Manages how much delivery volume can be booked into upcoming routes. |
+| **Delivery partners and DSP performance** | Manages third-party delivery service partners and their drivers, and monitors their performance. |
+| **People** | Manages internal staff accounts and access. |
+| **Merchants, packages, transport zones, and settings** | Provides the supporting administration and configuration screens for the data the other areas depend on. |
+
+
+### The Backend Services Connected to BVR
+
+| Service | What BVR uses it for |
+| --- | --- |
+| **Core** | BVR’s primary integration: routes and appointments are read from and written to Core, alongside auth, user, organization, merchant, and package data. BVR is the dedicated frontend for Core’s `bvr` namespace, including its appointment detail and index endpoints. |
+| **Silver** | Automated routing orchestration with Optimate; vehicle kinds; route analysis such as ETAs, totals, and map polylines; and per-stop metrics. A vehicle kind is a routing-configuration profile — weight, volume, distance limits, fuel type, and priority — not a literal vehicle make or model. |
+| **Alpine** | Delivery service partner (DSP) profiles and driver-management data, supporting BVR’s DSP management and performance experiences. |
+| **Blue** | Transport zones and appointment completion details, including completion location, wrong-location flags and reason codes, and proof-of-delivery verification-image references. |
+| **Pigeon** | Live vehicle GPS locations for BVR’s tracking page. |
+| **Sierra** | A sibling operations app, not an API dependency. BVR and Sierra deep-link to the same appointment or route, share the “Routing Portal (BVR)” permission concept, and use the same feature-flag service. |
+
+
+### Automated Routing: BVR, Silver, and Optimate
+
+Silver is the orchestration layer between BVR and Optimate. When a routing user requests a route in BVR, the flow is:
+
+1. **BVR requests routing from Silver.** Silver creates and stores a Job in its Postgres database. The job moves through statuses such as active, creating routes/ETAs, completed, or failed.
+2. **Silver publishes the job to Optimate** through Google Pub/Sub.
+3. **Optimate runs its ALNS (adaptive large neighborhood search) algorithm** and publishes the result back to Silver through Pub/Sub.
+4. **Silver formats a successful result and calls Core** to create the routes, attaching the vehicle kind.
+
+An Optimate result contains one or more vehicles with assigned stops, plus any stops that could not be routed. A “no route found” response is still a complete result: its vehicle list is empty and all stops are returned as unplanned. Silver interprets that outcome as having no routes to create.
+
+The routes created in Core have a vehicle kind, but **no DSP and no driver**. Both assignments happen afterward in BVR: routing teams can bulk-assign DSPs, then authorized users use the separate crew-assignment panel to select drivers. BVR therefore covers both assignment steps in one shared operations app.
+
+Route-level values such as ETA and totals are separate from Silver’s per-stop metrics: **stop duration** and **travel time between stops**.
+
+---
+
+### Appointment Verification
+
+Beyond transport-zone data, Blue tracks appointment completion details, proof-of-delivery images, and verification results. It uses AI-based vision tools to perform basic proof-of-delivery checks, including whether a pod image is valid and whether a door frame or house number is visible.
+
+---
+
+### Deployment
+
+BVR is built as a Docker image, pushed to Google Artifact Registry by GitHub Actions, and run on Google Kubernetes Engine. Production deploys to the `prd-prod` cluster in the `bvr` namespace, updated with `kubectl set image`.
+
+Separate workflows cover staging, pre-production, and production.
+
+The repository still contains a `heroku-deploy.yml` workflow, but it is a reusable `workflow_call` that nothing invokes and it has not been touched since February 2025. Heroku is legacy and is no longer part of BVR's release path.
+
+---
+
+### Architecture Overview
+
+<BVRArchitectureOverview />
